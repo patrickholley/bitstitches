@@ -1,2 +1,2 @@
 # bitstitch
-A quick and power pixel chart-generation tool
+A quick and powerful tool for generating pixel charts
