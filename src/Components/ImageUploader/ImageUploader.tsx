@@ -1,20 +1,22 @@
 import * as React from 'react'
 import './ImageUploader.scss';
 
+interface IImageUploader {
+  onImageDrop(): void,
+}
 
-
-class ImageUploader extends React.Component {
+class ImageUploader extends React.Component<IImageUploader> {
   constructor(props: any) {
     super(props);
   }
 
-  onDragOver = (event: React.MouseEvent) => {
+  onDragOver = (event: React.DragEvent) => {
     event.preventDefault();
   };
 
-  onDrop = (event: React.MouseEvent) => {
-    alert("Thanks for the file!");
+  onDrop = (event: React.DragEvent) => {
     event.preventDefault();
+    this.props.onImageDrop();
   };
 
   render() {

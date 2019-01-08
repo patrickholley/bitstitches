@@ -7,7 +7,7 @@ class App extends React.Component {
     return (
       <>
         <ImageUploader />
-        {/*<ImageFrame />*/}
+        <ImageFrame />
       </>
     )
   }
