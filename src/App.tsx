@@ -1,13 +1,11 @@
 import * as React from 'react'
-import ImageUploader from './Components/ImageUploader';
-import ImageFrame from './Components/ImageFrame';
+import BitStitchCreator from './Components/BitStitchCreator/BitStitchCreator';
 
 class App extends React.Component {
   render() {
     return (
       <>
-        <ImageUploader />
-        <ImageFrame />
+        <BitStitchCreator />
       </>
     )
   }

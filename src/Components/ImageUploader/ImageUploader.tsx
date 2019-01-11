@@ -1,11 +1,11 @@
 import * as React from 'react'
 import './ImageUploader.scss';
 
-interface IImageUploader {
-  onImageDrop(): void,
+interface IProps {
+  onDrop(event: React.DragEvent): void,
 }
 
-class ImageUploader extends React.Component<IImageUploader> {
+class ImageUploader extends React.Component<IProps> {
   constructor(props: any) {
     super(props);
   }
@@ -14,17 +14,12 @@ class ImageUploader extends React.Component<IImageUploader> {
     event.preventDefault();
   };
 
-  onDrop = (event: React.DragEvent) => {
-    event.preventDefault();
-    this.props.onImageDrop();
-  };
-
   render() {
     return (
       <div
         className="image-uploader"
         onDragOver={this.onDragOver}
-        onDrop={this.onDrop}
+        onDrop={this.props.onDrop}
       >
         Drag files here
       </div>
