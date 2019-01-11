@@ -1,18 +1,10 @@
-import * as React from 'react'
+import React, { Component } from 'react';
 import './BitStitchCreator.scss';
 import ImageUploader from '../ImageUploader';
 import ImageFrame from '../ImageFrame';
 
-interface IProps {
-
-}
-
-interface IState {
-  image: string,
-}
-
-class BitStitchCreator extends React.Component<IProps, IState> {
-  constructor(props: any) {
+class BitStitchCreator extends Component {
+  constructor(props) {
     super(props);
 
     this.state = {
@@ -20,19 +12,17 @@ class BitStitchCreator extends React.Component<IProps, IState> {
     }
   }
 
-  onDragOver = (event: React.DragEvent) => {
-    event.preventDefault();
-  };
-
-  onDrop = (event: React.DragEvent) => {
+  onDrop = (event) => {
     event.preventDefault();
     const imageFile = event.dataTransfer.files[0];
     const reader = new FileReader();
-    reader.onload = (file: Event) => {
+
+    reader.onload = (file) => {
       this.setState({
-        image: reader.result as string,
+        image: file.target.result,
       })
     };
+
     reader.readAsDataURL(imageFile);
   };
 

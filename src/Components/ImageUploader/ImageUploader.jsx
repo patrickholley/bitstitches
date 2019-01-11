@@ -1,16 +1,12 @@
-import * as React from 'react'
+import React, { Component } from 'react';
 import './ImageUploader.scss';
 
-interface IProps {
-  onDrop(event: React.DragEvent): void,
-}
-
-class ImageUploader extends React.Component<IProps> {
-  constructor(props: any) {
+class ImageUploader extends Component {
+  constructor(props) {
     super(props);
   }
 
-  onDragOver = (event: React.DragEvent) => {
+  onDragOver = (event) => {
     event.preventDefault();
   };
 

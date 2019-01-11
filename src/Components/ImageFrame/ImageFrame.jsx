@@ -1,12 +1,8 @@
-import * as React from 'react'
+import React, { Component } from 'react';
 import './ImageFrame.scss';
 
-interface IProps {
-  image: string,
-}
-
-class ImageFrame extends React.Component<IProps> {
-  constructor(props: any) {
+class ImageFrame extends Component {
+  constructor(props) {
     super(props);
   }
 

@@ -1,7 +1,7 @@
-import * as React from 'react'
+import React, { Component } from 'react'
 import BitStitchCreator from './Components/BitStitchCreator/BitStitchCreator';
 
-class App extends React.Component {
+class App extends Component {
   render() {
     return (
       <>
