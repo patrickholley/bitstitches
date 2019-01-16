@@ -20,7 +20,7 @@ class BitStitchCreator extends Component {
     reader.onload = (file) => {
       this.setState({
         image: file.target.result,
-      })
+      });
     };
 
     reader.readAsDataURL(imageFile);
