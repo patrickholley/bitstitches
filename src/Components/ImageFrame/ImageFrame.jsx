@@ -32,7 +32,7 @@ class ImageFrame extends Component {
         context.drawImage(canvasImage, 0, 0, canvasImage.width, canvasImage.height);
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
+        for (let i = 0; i < data.length; i += 16) {
           const greyValue = (data[i] + data[i + 1] + data[i + 2]) / 3;
           data[i] = greyValue;
           data[i + 1] = greyValue;

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './BitStitchCreator.scss';
 import ImageUploader from '../ImageUploader';
 import ImageFrame from '../ImageFrame';
+import CrossStitchPattern from '../CrossStitchPattern/CrossStitchPattern';
 
 class BitStitchCreator extends Component {
   constructor(props) {
@@ -31,6 +32,7 @@ class BitStitchCreator extends Component {
       <>
         <ImageUploader onDrop={this.onDrop} />
         <ImageFrame image={this.state.image} />
+        <CrossStitchPattern columnCount={100} rowCount={100} />
       </>
     )
   }
