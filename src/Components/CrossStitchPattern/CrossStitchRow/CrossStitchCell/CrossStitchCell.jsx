@@ -3,9 +3,9 @@ import "./CrossStitchCell.scss";
 
 class CrossStitchCell extends Component {
   render() {
-    const { columns, rows } = this.props;
+    const { data } = this.props;
     return (
-      <div className="cross-stitch__cell" />
+      <div className="cross-stitch__cell" style={{ backgroundColor: `rgb(${data[0]}, ${data[1]}, ${data[2]})`}} />
     )
   }
 }

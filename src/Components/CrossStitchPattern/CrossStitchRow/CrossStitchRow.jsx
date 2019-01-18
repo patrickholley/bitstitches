@@ -4,11 +4,11 @@ import './CrossStitchRow.scss';
 
 class CrossStitchRow extends Component {
   getCells = () => {
-    const { columnCount } = this.props;
+    const { columnCount, data } = this.props;
     const columns = [];
 
     for (let i = 0; i < columnCount; i++) {
-      columns.push(<CrossStitchCell />);
+      columns.push(<CrossStitchCell data={data[i]} />);
     }
 
     return columns;
