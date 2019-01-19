@@ -3,7 +3,7 @@ import CrossStitchRow from './CrossStitchRow';
 import './CrossStitchPattern.scss';
 
 class CrossStitchPattern extends Component {
-  getRows = () => {
+  /*getRows = () => {
     const { columnCount, data, rowCount } = this.props;
     const rows = [];
 
@@ -12,13 +12,11 @@ class CrossStitchPattern extends Component {
     }
 
     return rows;
-  };
+  };*/
 
   render() {
     return (
-      <div className="cross-stitch__wrapper">
-        {this.getRows()}
-      </div>
+      <canvas width />
     )
   }
 }

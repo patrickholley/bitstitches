@@ -9,20 +9,20 @@ class BitStitchCreator extends Component {
     super(props);
 
     this.state = {
-      columnCount: 100,
-      data: [],
+      columnCount: 1000,
       image: null,
-      rowCount: 100,
+      rowCount: 1000,
     }
   }
 
   componentWillMount = () => {
+    const { columnCount, rowCount } = this.state;
     const testData = [];
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < columnCount; i++) {
       const testColumnData = [];
 
-      for (let j = 0; j < 100; j++) {
+      for (let j = 0; j < rowCount; j++) {
         testColumnData.push([Math.random() * 255, Math.random() * 255, Math.random() * 255]);
       }
 
@@ -49,8 +49,8 @@ class BitStitchCreator extends Component {
   };
 
   onImageLoad = () => {
-    const { image } = this.state;
-    const data = Object.assign({}, this.state.data);
+    const { columnCount, image, rowCount } = this.state;
+    // const data = Object.assign({}, this.state.data);
     const canvas = document.createElement('canvas');
     canvas.width = image.width;
     canvas.height = image.height;
@@ -64,61 +64,63 @@ class BitStitchCreator extends Component {
     let largerDimension = dimensionDifference > 0 ? height : width;
     const yOffset = dimensionDifference > 0 ? dimensionDifference / 2 : 0;
     const xOffset = dimensionDifference < 0 ? (0 - dimensionDifference) / 2 : 0;
+    const buffer = new Uint8ClampedArray(rowCount * columnCount * 4);
 
-    for (let i = 0; i < 100; i++) {
-      for (let j = 0; j < 100; j++) {
-        const x = Math.round(((largerDimension/100) * i) - xOffset);
-        const y = Math.round(((largerDimension/100) * j) - yOffset);
+    for (let i = 0; i < columnCount; i++) {
+      for (let j = 0; j < rowCount; j++) {
+        const bufferIndex = Math.round((columnCount * i) + j) * 4;
+        const x = Math.round(((largerDimension/columnCount) * i) - xOffset);
+        const y = Math.round(((largerDimension/rowCount) * j) - yOffset);
 
         if (this.outOfBounds(x, y, width, height)) {
-          data[i][j] = [255, 255, 255];
+          buffer[bufferIndex] = 255;
+          buffer[bufferIndex + 1] = 255;
+          buffer[bufferIndex + 2] = 255;
+          buffer[bufferIndex + 3] = 255;
         } else {
-          const colorIndex = ((width * x) + y) * 4;
-          data[i][j] = [imageData[colorIndex], imageData[colorIndex + 1], imageData[colorIndex + 2]];
+          const imageIndex = ((width * x) + y) * 4;
+          buffer[bufferIndex] = imageData[imageIndex];
+          buffer[bufferIndex + 1] = imageData[imageIndex + 1];
+          buffer[bufferIndex + 2] = imageData[imageIndex + 2];
+          buffer[bufferIndex + 3] = imageData[imageIndex + 3];
         }
       }
     }
 
-    this.setState({ data });
+    /*for (let i = 0; i < buffer.length; i+= 4) {
+      const imageIndex = Math.round(((imageData.length/buffer.length) * i) / 4) * 4;
+
+      if (i === 36) console.log(buffer.length, imageData.length, i, imageIndex);
+
+      buffer[i] = imageData[imageIndex];
+      buffer[i + 1] = imageData[imageIndex + 1];
+      buffer[i + 2] = imageData[imageIndex + 2];
+      buffer[i + 3] = imageData[imageIndex + 3];
+    }*/
+
+    canvas.width = columnCount;
+    canvas.height = rowCount;
+    const bufferData = context.createImageData(columnCount, rowCount);
+    bufferData.data.set(buffer);
+    context.putImageData(bufferData, 0, 0);
+    const bufferImage = canvas.toDataURL();
+
+    this.setState({ image: bufferImage });
+
+    // this.setState({ data });
   };
 
   outOfBounds = (x, y, width, height) => x < 0 || x >= height || y < 0 || y >= width;
-
-  /*onImageUpload = () => {
-    const { image } = this.props;
-    const canvasImage = new Image();
-    canvasImage.src = image;
-    canvasImage.onload = () => {
-      this.setState({
-        width: canvasImage.width,
-        height: canvasImage.height,
-      }, () => {
-        const canvas = document.getElementsByClassName('image-frame__canvas')[0];
-        const context = canvas.getContext('2d');
-        context.drawImage(canvasImage, 0, 0, canvasImage.width, canvasImage.height);
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 16) {
-          const greyValue = (data[i] + data[i + 1] + data[i + 2]) / 3;
-          data[i] = greyValue;
-          data[i + 1] = greyValue;
-          data[i + 2] = greyValue;
-        }
-        context.putImageData(imageData, 0, 0);
-      });
-    };
-  };*/
 
   render() {
     return (
       <>
         <ImageUploader onDrop={this.onDrop} />
-        {/*<ImageFrame image={this.state.image} />*/}
-        <CrossStitchPattern
+        <img alt="uploaded cross-stitch pattern" src={this.state.image} />
+        {/*<CrossStitchPattern
           columnCount={this.state.columnCount}
-          data={this.state.data}
           rowCount={this.state.rowCount}
-        />
+        />*/}
       </>
     )
   }
