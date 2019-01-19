@@ -9,8 +9,10 @@ class BitStitchCreator extends Component {
     super(props);
 
     this.state = {
+      columnCount: 100,
       data: [],
       image: null,
+      rowCount: 100,
     }
   }
 
@@ -54,21 +56,33 @@ class BitStitchCreator extends Component {
     canvas.height = image.height;
     const context = canvas.getContext('2d');
     context.drawImage(image, 0, 0);
-    const imageData = context.getImageData(0, 0, image.width, image.height).data;
+    const { width, height } = image;
+    const imageData = context.getImageData(0, 0, width, height).data;
+
+    const dimensionDifference = height - width;
+
+    let largerDimension = dimensionDifference > 0 ? height : width;
+    const yOffset = dimensionDifference > 0 ? dimensionDifference / 2 : 0;
+    const xOffset = dimensionDifference < 0 ? (0 - dimensionDifference) / 2 : 0;
 
     for (let i = 0; i < 100; i++) {
       for (let j = 0; j < 100; j++) {
-        const x = Math.round((image.height/100) * i);
-        const y = Math.round((image.width/100) * j);
+        const x = Math.round(((largerDimension/100) * i) - xOffset);
+        const y = Math.round(((largerDimension/100) * j) - yOffset);
 
-        const colorIndex = ((image.width * x) + y) * 4;
-
-        data[i][j] = [imageData[colorIndex], imageData[colorIndex + 1], imageData[colorIndex + 2]];
+        if (this.outOfBounds(x, y, width, height)) {
+          data[i][j] = [255, 255, 255];
+        } else {
+          const colorIndex = ((width * x) + y) * 4;
+          data[i][j] = [imageData[colorIndex], imageData[colorIndex + 1], imageData[colorIndex + 2]];
+        }
       }
     }
 
     this.setState({ data });
   };
+
+  outOfBounds = (x, y, width, height) => x < 0 || x >= height || y < 0 || y >= width;
 
   /*onImageUpload = () => {
     const { image } = this.props;
@@ -101,9 +115,9 @@ class BitStitchCreator extends Component {
         <ImageUploader onDrop={this.onDrop} />
         {/*<ImageFrame image={this.state.image} />*/}
         <CrossStitchPattern
-          columnCount={100}
+          columnCount={this.state.columnCount}
           data={this.state.data}
-          rowCount={100}
+          rowCount={this.state.rowCount}
         />
       </>
     )
