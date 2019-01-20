@@ -9,9 +9,13 @@ class BitStitchCreator extends Component {
     super(props);
 
     this.state = {
-      columnCount: 117,
+      columnCount: 384,
+      gridColor: [0, 0, 0, 255],
+      hasGrid: true,
       image: null,
-      rowCount: 93,
+      pixelSize: 5,
+      rowCount: 216,
+      spaceColor: [0, 0, 0, 255],
     }
   }
 
@@ -32,7 +36,15 @@ class BitStitchCreator extends Component {
   };
 
   onImageLoad = () => {
-    const { columnCount, image, rowCount } = this.state;
+    const {
+      columnCount,
+      gridColor,
+      hasGrid,
+      image,
+      pixelSize,
+      rowCount,
+      spaceColor,
+    } = this.state;
     const canvas = document.createElement('canvas');
     const { width, height } = image;
     canvas.width = width;
@@ -40,12 +52,11 @@ class BitStitchCreator extends Component {
     const context = canvas.getContext('2d');
     context.drawImage(image, 0, 0);
     const imageData = context.getImageData(0, 0, width, height).data;
-    // scale the height and width to the number of rows and columns respectively
     const heightPerRow = height / rowCount;
     const widthPerColumn = width / columnCount;
     const ratioDifference = heightPerRow - widthPerColumn;
     const scale = ratioDifference > 0 ? heightPerRow : widthPerColumn;
-    const buffer = new Uint8ClampedArray(rowCount * columnCount * 400);
+    const buffer = new Uint8ClampedArray(rowCount * columnCount * 4 * pixelSize * pixelSize);
     const xOffset = ratioDifference < 0 ? ((widthPerColumn * rowCount) - height) / 2 : 0;
     const yOffset = ratioDifference > 0 ? ((heightPerRow * columnCount) - width) / 2 : 0;
 
@@ -55,26 +66,28 @@ class BitStitchCreator extends Component {
         const x = Math.round((scale * i) - xOffset);
         const y = Math.round((scale * j) - yOffset);
 
-        // k = x position within a 10x10 pixel
-        for (let k = 0; k < 10; k++) {
-          // l = y position within a 10x10 pixel
-          for (let l = 0; l < 10; l++) {
-            const bufferIndex = (((columnCount * 10) * ((i * 10) + k)) + (j * 10) + l) * 4;
-            if (k === 9 || l === 9 || (i === 0 && k === 0) || (j === 0 && l === 0)) {
-              // for grid within pixel map - dark grey
-              buffer[bufferIndex] = 63;
-              buffer[bufferIndex + 1] = 63;
-              buffer[bufferIndex + 2] = 63;
-              buffer[bufferIndex + 3] = 255;
+        for (let k = 0; k < pixelSize; k++) {
+          for (let l = 0; l < pixelSize; l++) {
+            const bufferIndex = (((columnCount * pixelSize) * ((i * pixelSize) + k)) + (j * pixelSize) + l) * 4;
+            if (
+              (
+                k === (pixelSize - 1)
+                || l === (pixelSize - 1)
+                || (i === 0 && k === 0)
+                || (j === 0 && l === 0)
+              ) && hasGrid
+            ) {
+              buffer[bufferIndex] = gridColor[0];
+              buffer[bufferIndex + 1] = gridColor[1];
+              buffer[bufferIndex + 2] = gridColor[2];
+              buffer[bufferIndex + 3] = gridColor[3];
             }
             else if (this.outOfBounds(x, y, width, height)) {
-              // not part of pattern - whitespace
-              buffer[bufferIndex] = 255;
-              buffer[bufferIndex + 1] = 255;
-              buffer[bufferIndex + 2] = 255;
-              buffer[bufferIndex + 3] = 255;
+              buffer[bufferIndex] = spaceColor[0];
+              buffer[bufferIndex + 1] = spaceColor[1];
+              buffer[bufferIndex + 2] = spaceColor[2];
+              buffer[bufferIndex + 3] = spaceColor[3];
             } else {
-              // filling each 10x10 pixel - actual image color
               const imageIndex = ((width * x) + y) * 4;
               buffer[bufferIndex] = imageData[imageIndex];
               buffer[bufferIndex + 1] = imageData[imageIndex + 1];
@@ -86,8 +99,8 @@ class BitStitchCreator extends Component {
       }
     }
 
-    canvas.width = columnCount * 10;
-    canvas.height = rowCount * 10;
+    canvas.width = columnCount * pixelSize;
+    canvas.height = rowCount * pixelSize;
     const bufferData = context.createImageData(canvas.width, canvas.height);
     bufferData.data.set(buffer);
     context.putImageData(bufferData, 0, 0);
