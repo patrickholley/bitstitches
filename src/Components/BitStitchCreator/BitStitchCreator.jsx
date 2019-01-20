@@ -9,9 +9,9 @@ class BitStitchCreator extends Component {
     super(props);
 
     this.state = {
-      columnCount: 50,
+      columnCount: 117,
       image: null,
-      rowCount: 100,
+      rowCount: 93,
     }
   }
 
@@ -41,34 +41,40 @@ class BitStitchCreator extends Component {
     context.drawImage(image, 0, 0);
     const imageData = context.getImageData(0, 0, width, height).data;
     // scale the height and width to the number of rows and columns respectively
-    // when scaled, is the image disproportionately taller or wider?
-    const dimensionDifference = (height / rowCount) - (width / columnCount);
-    const largerDimension = dimensionDifference > 0 ? height : width;
-    const smallerCount = dimensionDifference > 0 ? rowCount : columnCount;
+    const heightPerRow = height / rowCount;
+    const widthPerColumn = width / columnCount;
+    const ratioDifference = heightPerRow - widthPerColumn;
+    const scale = ratioDifference > 0 ? heightPerRow : widthPerColumn;
     const buffer = new Uint8ClampedArray(rowCount * columnCount * 400);
+    const xOffset = ratioDifference < 0 ? ((widthPerColumn * rowCount) - height) / 2 : 0;
+    const yOffset = ratioDifference > 0 ? ((heightPerRow * columnCount) - width) / 2 : 0;
+
 
     for (let i = 0; i < rowCount; i++) {
       for (let j = 0; j < columnCount; j++) {
-        // divide the larger dimension by rowCount or columnCount, whichever is smaller
-        // keeps proper image scale
-        const x = Math.round(((largerDimension/smallerCount) * i));
-        const y = Math.round(((largerDimension/smallerCount) * j));
+        const x = Math.round((scale * i) - xOffset);
+        const y = Math.round((scale * j) - yOffset);
 
+        // k = x position within a 10x10 pixel
         for (let k = 0; k < 10; k++) {
+          // l = y position within a 10x10 pixel
           for (let l = 0; l < 10; l++) {
-            const bufferIndex = ((columnCount * 10 * ((i * 10) + k)) + (j * 10) + l) * 4;
+            const bufferIndex = (((columnCount * 10) * ((i * 10) + k)) + (j * 10) + l) * 4;
             if (k === 9 || l === 9 || (i === 0 && k === 0) || (j === 0 && l === 0)) {
+              // for grid within pixel map - dark grey
               buffer[bufferIndex] = 63;
               buffer[bufferIndex + 1] = 63;
               buffer[bufferIndex + 2] = 63;
               buffer[bufferIndex + 3] = 255;
             }
             else if (this.outOfBounds(x, y, width, height)) {
+              // not part of pattern - whitespace
               buffer[bufferIndex] = 255;
               buffer[bufferIndex + 1] = 255;
               buffer[bufferIndex + 2] = 255;
               buffer[bufferIndex + 3] = 255;
             } else {
+              // filling each 10x10 pixel - actual image color
               const imageIndex = ((width * x) + y) * 4;
               buffer[bufferIndex] = imageData[imageIndex];
               buffer[bufferIndex + 1] = imageData[imageIndex + 1];
