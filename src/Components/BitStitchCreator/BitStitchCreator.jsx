@@ -9,28 +9,11 @@ class BitStitchCreator extends Component {
     super(props);
 
     this.state = {
-      columnCount: 1000,
+      columnCount: 50,
       image: null,
-      rowCount: 1000,
+      rowCount: 100,
     }
   }
-
-  componentWillMount = () => {
-    const { columnCount, rowCount } = this.state;
-    const testData = [];
-
-    for (let i = 0; i < columnCount; i++) {
-      const testColumnData = [];
-
-      for (let j = 0; j < rowCount; j++) {
-        testColumnData.push([Math.random() * 255, Math.random() * 255, Math.random() * 255]);
-      }
-
-      testData.push(testColumnData);
-    }
-
-    this.setState({ data: testData });
-  };
 
   onDrop = (event) => {
     event.preventDefault();
@@ -50,64 +33,61 @@ class BitStitchCreator extends Component {
 
   onImageLoad = () => {
     const { columnCount, image, rowCount } = this.state;
-    // const data = Object.assign({}, this.state.data);
     const canvas = document.createElement('canvas');
-    canvas.width = image.width;
-    canvas.height = image.height;
+    const { width, height } = image;
+    canvas.width = width;
+    canvas.height = height;
     const context = canvas.getContext('2d');
     context.drawImage(image, 0, 0);
-    const { width, height } = image;
     const imageData = context.getImageData(0, 0, width, height).data;
+    // scale the height and width to the number of rows and columns respectively
+    // when scaled, is the image disproportionately taller or wider?
+    const dimensionDifference = (height / rowCount) - (width / columnCount);
+    const largerDimension = dimensionDifference > 0 ? height : width;
+    const smallerCount = dimensionDifference > 0 ? rowCount : columnCount;
+    const buffer = new Uint8ClampedArray(rowCount * columnCount * 400);
 
-    const dimensionDifference = height - width;
+    for (let i = 0; i < rowCount; i++) {
+      for (let j = 0; j < columnCount; j++) {
+        // divide the larger dimension by rowCount or columnCount, whichever is smaller
+        // keeps proper image scale
+        const x = Math.round(((largerDimension/smallerCount) * i));
+        const y = Math.round(((largerDimension/smallerCount) * j));
 
-    let largerDimension = dimensionDifference > 0 ? height : width;
-    const yOffset = dimensionDifference > 0 ? dimensionDifference / 2 : 0;
-    const xOffset = dimensionDifference < 0 ? (0 - dimensionDifference) / 2 : 0;
-    const buffer = new Uint8ClampedArray(rowCount * columnCount * 4);
-
-    for (let i = 0; i < columnCount; i++) {
-      for (let j = 0; j < rowCount; j++) {
-        const bufferIndex = Math.round((columnCount * i) + j) * 4;
-        const x = Math.round(((largerDimension/columnCount) * i) - xOffset);
-        const y = Math.round(((largerDimension/rowCount) * j) - yOffset);
-
-        if (this.outOfBounds(x, y, width, height)) {
-          buffer[bufferIndex] = 255;
-          buffer[bufferIndex + 1] = 255;
-          buffer[bufferIndex + 2] = 255;
-          buffer[bufferIndex + 3] = 255;
-        } else {
-          const imageIndex = ((width * x) + y) * 4;
-          buffer[bufferIndex] = imageData[imageIndex];
-          buffer[bufferIndex + 1] = imageData[imageIndex + 1];
-          buffer[bufferIndex + 2] = imageData[imageIndex + 2];
-          buffer[bufferIndex + 3] = imageData[imageIndex + 3];
+        for (let k = 0; k < 10; k++) {
+          for (let l = 0; l < 10; l++) {
+            const bufferIndex = ((columnCount * 10 * ((i * 10) + k)) + (j * 10) + l) * 4;
+            if (k === 9 || l === 9 || (i === 0 && k === 0) || (j === 0 && l === 0)) {
+              buffer[bufferIndex] = 63;
+              buffer[bufferIndex + 1] = 63;
+              buffer[bufferIndex + 2] = 63;
+              buffer[bufferIndex + 3] = 255;
+            }
+            else if (this.outOfBounds(x, y, width, height)) {
+              buffer[bufferIndex] = 255;
+              buffer[bufferIndex + 1] = 255;
+              buffer[bufferIndex + 2] = 255;
+              buffer[bufferIndex + 3] = 255;
+            } else {
+              const imageIndex = ((width * x) + y) * 4;
+              buffer[bufferIndex] = imageData[imageIndex];
+              buffer[bufferIndex + 1] = imageData[imageIndex + 1];
+              buffer[bufferIndex + 2] = imageData[imageIndex + 2];
+              buffer[bufferIndex + 3] = imageData[imageIndex + 3];
+            }
+          }
         }
       }
     }
 
-    /*for (let i = 0; i < buffer.length; i+= 4) {
-      const imageIndex = Math.round(((imageData.length/buffer.length) * i) / 4) * 4;
-
-      if (i === 36) console.log(buffer.length, imageData.length, i, imageIndex);
-
-      buffer[i] = imageData[imageIndex];
-      buffer[i + 1] = imageData[imageIndex + 1];
-      buffer[i + 2] = imageData[imageIndex + 2];
-      buffer[i + 3] = imageData[imageIndex + 3];
-    }*/
-
-    canvas.width = columnCount;
-    canvas.height = rowCount;
-    const bufferData = context.createImageData(columnCount, rowCount);
+    canvas.width = columnCount * 10;
+    canvas.height = rowCount * 10;
+    const bufferData = context.createImageData(canvas.width, canvas.height);
     bufferData.data.set(buffer);
     context.putImageData(bufferData, 0, 0);
     const bufferImage = canvas.toDataURL();
 
     this.setState({ image: bufferImage });
-
-    // this.setState({ data });
   };
 
   outOfBounds = (x, y, width, height) => x < 0 || x >= height || y < 0 || y >= width;
