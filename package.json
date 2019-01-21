@@ -2,7 +2,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "start": "webpack-dev-server --mode development --open --hot",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "start:prod": "webpack --mode production && node production_server"
   },
   "dependencies": {
     "react": "^16.7.0",

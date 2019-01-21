@@ -9,13 +9,13 @@ class BitStitchCreator extends Component {
     super(props);
 
     this.state = {
-      columnCount: 384,
+      columnCount: 100,
       gridColor: [0, 0, 0, 255],
       hasGrid: true,
       image: null,
-      pixelSize: 5,
-      rowCount: 216,
-      spaceColor: [0, 0, 0, 255],
+      pixelSize: 10,
+      rowCount: 75,
+      spaceColor: [255, 255, 255, 255],
     }
   }
 
