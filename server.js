@@ -8,5 +8,5 @@ app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-app.listen(5000);
-console.log('Listening on port 5000');
+app.listen(80);
+console.log('Now available on bitstitches.com');
