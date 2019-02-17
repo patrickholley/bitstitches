@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import BitStitchCreator from './Components/BitStitchCreator/BitStitchCreator';
 import ErrorBoundary from './lib/ErrorBoundary/ErrorBoundary';
+import MainRouter from './MainRouter';
 
 class App extends Component {
   render() {
     return (
       <ErrorBoundary>
-        <BitStitchCreator />
+        <MainRouter />
       </ErrorBoundary>
     )
   }

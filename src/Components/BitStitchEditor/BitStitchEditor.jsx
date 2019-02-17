@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import './BitStitchCreator.scss';
+import './BitStitchEditor.scss';
 import ImageUploader from '../ImageUploader';
-import ImageFrame from '../ImageFrame';
-import CrossStitchPattern from '../CrossStitchPattern/CrossStitchPattern';
 
-class BitStitchCreator extends Component {
+class BitStitchEditor extends Component {
   constructor(props) {
     super(props);
 
@@ -14,14 +12,12 @@ class BitStitchCreator extends Component {
       hasGrid: true,
       image: null,
       pixelSize: 10,
-      rowCount: 75,
+      rowCount: 100,
       spaceColor: [255, 255, 255, 255],
     }
   }
 
-  onDrop = (event) => {
-    event.preventDefault();
-    const imageFile = event.dataTransfer.files[0];
+  onUpload = imageFile => {
     const reader = new FileReader();
 
     reader.onload = (file) => {
@@ -34,6 +30,8 @@ class BitStitchCreator extends Component {
 
     reader.readAsDataURL(imageFile);
   };
+
+  outOfBounds = (x, y, width, height) => x < 0 || x >= height || y < 0 || y >= width;
 
   onImageLoad = () => {
     const {
@@ -60,7 +58,6 @@ class BitStitchCreator extends Component {
     const xOffset = ratioDifference < 0 ? ((widthPerColumn * rowCount) - height) / 2 : 0;
     const yOffset = ratioDifference > 0 ? ((heightPerRow * columnCount) - width) / 2 : 0;
 
-
     for (let i = 0; i < rowCount; i++) {
       for (let j = 0; j < columnCount; j++) {
         const x = Math.round((scale * i) - xOffset);
@@ -68,6 +65,8 @@ class BitStitchCreator extends Component {
 
         for (let k = 0; k < pixelSize; k++) {
           for (let l = 0; l < pixelSize; l++) {
+            let colorSource;
+            let colorIndex = 0;
             const bufferIndex = (((columnCount * pixelSize) * ((i * pixelSize) + k)) + (j * pixelSize) + l) * 4;
             if (
               (
@@ -77,22 +76,16 @@ class BitStitchCreator extends Component {
                 || (j === 0 && l === 0)
               ) && hasGrid
             ) {
-              buffer[bufferIndex] = gridColor[0];
-              buffer[bufferIndex + 1] = gridColor[1];
-              buffer[bufferIndex + 2] = gridColor[2];
-              buffer[bufferIndex + 3] = gridColor[3];
+              colorSource = gridColor;
             }
             else if (this.outOfBounds(x, y, width, height)) {
-              buffer[bufferIndex] = spaceColor[0];
-              buffer[bufferIndex + 1] = spaceColor[1];
-              buffer[bufferIndex + 2] = spaceColor[2];
-              buffer[bufferIndex + 3] = spaceColor[3];
+              colorSource = spaceColor;
             } else {
-              const imageIndex = ((width * x) + y) * 4;
-              buffer[bufferIndex] = imageData[imageIndex];
-              buffer[bufferIndex + 1] = imageData[imageIndex + 1];
-              buffer[bufferIndex + 2] = imageData[imageIndex + 2];
-              buffer[bufferIndex + 3] = imageData[imageIndex + 3];
+              colorSource = imageData;
+              colorIndex = ((width * x) + y) * 4;
+            }
+            for (let i = 0; i < 4; i++) {
+              buffer[bufferIndex + i] = colorSource[colorIndex + i];
             }
           }
         }
@@ -109,20 +102,34 @@ class BitStitchCreator extends Component {
     this.setState({ image: bufferImage });
   };
 
-  outOfBounds = (x, y, width, height) => x < 0 || x >= height || y < 0 || y >= width;
+  onRowCountChange = e => {
+    const { value } = e.target;
+    if (Number.isInteger(parseInt(value)) || value === "") {
+      this.setState({ rowCount: value });
+    }
+  };
 
   render() {
     return (
-      <>
-        <ImageUploader onDrop={this.onDrop} />
-        <img alt="uploaded cross-stitch pattern" src={this.state.image} />
-        {/*<CrossStitchPattern
-          columnCount={this.state.columnCount}
-          rowCount={this.state.rowCount}
-        />*/}
-      </>
+      <div className="bitstitch-editor">
+        <div className="bitstitch-editor__input-wrapper">
+          <input
+            className="bitstitch-editor__input"
+            onChange={this.onRowCountChange}
+            value={this.state.rowCount}
+          />
+        </div>
+        <ImageUploader onUpload={this.onUpload} />
+        <div className="bitstitch-editor__preview-wrapper">
+          <img
+            alt="uploaded cross-stitch pattern"
+            className="bitstitch-editor__preview"
+            src={this.state.image}
+          />
+        </div>
+      </div>
     )
   }
 }
 
-export default BitStitchCreator;
+export default BitStitchEditor;

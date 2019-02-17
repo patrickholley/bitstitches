@@ -1,0 +1,23 @@
+.bitstitch-editor__input {
+  width: 100%;
+}
+
+.bitstitch-editor__input-wrapper {
+  width: 100px;
+}
+
+.bitstitch-editor__preview {
+  height: 300px;
+  width: 300px;
+}
+
+.bitstitch-editor__preview-wrapper {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.bitstitch-editor {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}

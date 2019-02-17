@@ -6,18 +6,22 @@ class ImageUploader extends Component {
     super(props);
   }
 
-  onDragOver = (event) => {
-    event.preventDefault();
+  onUpload = (e, dataKey) => {
+    e.preventDefault();
+    this.props.onUpload(e[dataKey].files[0]);
   };
 
   render() {
     return (
-      <div
-        className="image-uploader"
-        onDragOver={this.onDragOver}
-        onDrop={this.props.onDrop}
-      >
-        Drag files here
+      <div className="image-uploader__wrapper">
+        <label
+          className="image-uploader"
+          onDragOver={e => { e.preventDefault(); }}
+          onDrop={e => { this.onUpload(e, "dataTransfer"); }}
+        >
+          <input type="file" onChange={e => { this.onUpload(e, "target"); }} />
+          <span className="image-uploader__prompt">Select image</span>
+        </label>
       </div>
     )
   }

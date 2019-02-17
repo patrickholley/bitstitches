@@ -1,4 +1,25 @@
+:root {
+  --primary-dark: #17292e;
+  --primary-light: #4e888a;
+  --primary-orange: #f19645;
+  --primary-red: #fe2d36;
+  --primary-white: #f8f1d4;
+  --secondary-dark: #000928;
+  --secondary-light: #3582b9;
+  --secondary-primary: #04295e;
+  --secondary-white: #f5ebff;
+  --secondary-yellow: #ebf02c;
+}
+
 body {
+  background-color: var(--primary-dark);
   margin: 0;
+  padding: 0;
+}
+
+input {
+  border: none;
+  background: white;
+  height: 100%;
   padding: 0;
 }
