@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './BitStitchEditor.scss';
 import ImageUploader from '../ImageUploader';
+import TextInput from '../../lib/TextInput';
 
 class BitStitchEditor extends Component {
   constructor(props) {
@@ -18,17 +19,23 @@ class BitStitchEditor extends Component {
   }
 
   onUpload = imageFile => {
-    const reader = new FileReader();
+    const { columnCount, rowCount } = this.state;
+    if (columnCount === "" || rowCount === "") {
+      console.error("Please enter a number into each field");
+    }
+    else {
+      const reader = new FileReader();
 
-    reader.onload = (file) => {
-      const image = new Image();
-      image.onload = () => {
-        this.setState({ image }, () => { this.onImageLoad(); });
+      reader.onload = (file) => {
+        const image = new Image();
+        image.onload = () => {
+          this.setState({ image }, () => { this.onImageLoad(); });
+        };
+        image.src = file.target.result;
       };
-      image.src = file.target.result;
-    };
 
-    reader.readAsDataURL(imageFile);
+      reader.readAsDataURL(imageFile);
+    }
   };
 
   outOfBounds = (x, y, width, height) => x < 0 || x >= height || y < 0 || y >= width;
@@ -102,23 +109,30 @@ class BitStitchEditor extends Component {
     this.setState({ image: bufferImage });
   };
 
-  onRowCountChange = e => {
-    const { value } = e.target;
-    if (Number.isInteger(parseInt(value)) || value === "") {
-      this.setState({ rowCount: value });
+  onCountChange = (e, countKey) => {
+    let { value } = e.target;
+    if (Number.isInteger(parseInt(e.target.value)) || value === "") {
+      if (value !== "") {
+        if (value > 500) value = 500;
+        else if (value <= 0) value = 1;
+      }
+      this.setState({ [countKey]: value });
     }
   };
 
   render() {
     return (
       <div className="bitstitch-editor">
-        <div className="bitstitch-editor__input-wrapper">
-          <input
-            className="bitstitch-editor__input"
-            onChange={this.onRowCountChange}
-            value={this.state.rowCount}
-          />
-        </div>
+        <TextInput
+          className="bitstitch-editor__input"
+          onChange={e => { this.onCountChange(e, "rowCount"); }}
+          value={this.state.rowCount}
+        />
+        <TextInput
+          className="bitstitch-editor__input"
+          onChange={e => { this.onCountChange(e, "columnCount"); }}
+          value={this.state.columnCount}
+        />
         <ImageUploader onUpload={this.onUpload} />
         <div className="bitstitch-editor__preview-wrapper">
           <img

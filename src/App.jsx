@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import ErrorBoundary from './lib/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from './lib/ErrorBoundary';
 import MainRouter from './MainRouter';
 
 class App extends Component {

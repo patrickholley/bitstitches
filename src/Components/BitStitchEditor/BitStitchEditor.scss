@@ -1,14 +1,9 @@
 .bitstitch-editor__input {
-  width: 100%;
-}
-
-.bitstitch-editor__input-wrapper {
-  width: 100px;
+  margin-top: 10px;
 }
 
 .bitstitch-editor__preview {
-  height: 300px;
-  width: 300px;
+  width: 240px;
 }
 
 .bitstitch-editor__preview-wrapper {
@@ -20,4 +15,6 @@
   display: flex;
   flex-flow: column;
   justify-content: center;
+  margin: 0 auto;
+  width: 240px;
 }
