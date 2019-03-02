@@ -1,2 +1,2 @@
 # Bit Stitches
-A quick and powerful tool for generating pixel charts.
+A quick and powerful tool for generating pixel charts
