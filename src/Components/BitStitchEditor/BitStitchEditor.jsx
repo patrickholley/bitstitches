@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './BitStitchEditor.scss';
 import ImageUploader from '../ImageUploader';
 import TextInput from '../../lib/TextInput';
+import Button from '../../lib/Button';
 
 class BitStitchEditor extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class BitStitchEditor extends Component {
       reader.onload = (file) => {
         const image = new Image();
         image.onload = () => {
-          this.setState({ image }, () => { this.onImageLoad(); });
+          this.setState({ image });
         };
         image.src = file.target.result;
       };
@@ -123,17 +124,32 @@ class BitStitchEditor extends Component {
   render() {
     return (
       <div className="bitstitch-editor">
-        <TextInput
-          className="bitstitch-editor__input"
-          onChange={e => { this.onCountChange(e, "rowCount"); }}
-          value={this.state.rowCount}
-        />
-        <TextInput
-          className="bitstitch-editor__input"
-          onChange={e => { this.onCountChange(e, "columnCount"); }}
-          value={this.state.columnCount}
-        />
+        <div className="bitstitch-editor__field">
+          <span className="bitstitch-editor__field-label">Rows</span>
+          <TextInput
+            className="bitstitch-editor__field-input"
+            hasError={this.state.rowCount < 1}
+            onChange={e => { this.onCountChange(e, "rowCount"); }}
+            placeholder="0"
+            value={this.state.rowCount}
+          />
+        </div>
+        <div className="bitstitch-editor__field">
+          <span className="bitstitch-editor__field-label">Columns</span>
+          <TextInput
+            className="bitstitch-editor__field-input"
+            hasError={this.state.columnCount < 1}
+            onChange={e => { this.onCountChange(e, "columnCount"); }}
+            placeholder="0"
+            value={this.state.columnCount}
+          />
+        </div>
         <ImageUploader onUpload={this.onUpload} />
+        <Button
+          className="bitstitch-editor__submit"
+          onClick={this.onImageLoad}
+          text="Create BitStitch"
+        />
         <div className="bitstitch-editor__preview-wrapper">
           <img
             alt="uploaded cross-stitch pattern"
