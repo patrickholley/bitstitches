@@ -1,13 +1,14 @@
 .header {
   align-items: center;
-  background-color: var(--orange);
-  box-shadow: 0 0 20px var(--orange);
+  background-color: var(--burgundy);
+  box-shadow: 0 0 20px var(--burgundy);
   color: white;
   display: flex;
   height: 60px;
 }
 
 .header-title {
-  font-size: 24px;
+  font-family: Bringshoot, sans-serif;
+  font-size: 32px;
   margin-left: 20px;
 }

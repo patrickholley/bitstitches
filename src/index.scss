@@ -7,22 +7,22 @@
   --grey: #777;
   --orange: #a75037;
   --orange-light: #db9c77;
-  --white: #e2d3d5;
+  --pink: #e2d3d5;
 }
 
 @font-face {
-  font-family: Roboto;
-  src: url('../assets/fonts/Roboto-Regular.ttf');
+  font-family: Bringshoot;
+  src: url('../assets/fonts/Bringshoot.otf');
 }
 
 @font-face {
-  font-family: Raleway;
-  src: url('../assets/fonts/Raleway-Regular.ttf');
+  font-family: Modikasti;
+  src: url('../assets/fonts/Modikasti-Regular.otf');
 }
 
 body {
   background-color: white;
-  font-family: Raleway, sans-serif;
+  font-family: Modikasti, sans-serif;
   margin: 0;
   padding: 0;
 }

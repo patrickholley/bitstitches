@@ -8,7 +8,6 @@ const TextInput = props => (
     <input
       className={`text-input${props.hasError ? " error" : ""}`}
       onChange={props.onChange}
-      placeholder={props.placeholder}
       value={props.value}
     />
   </div>

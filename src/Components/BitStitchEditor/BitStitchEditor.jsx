@@ -9,12 +9,12 @@ class BitStitchEditor extends Component {
     super(props);
 
     this.state = {
-      columnCount: 100,
+      columnCount: "",
       gridColor: [0, 0, 0, 255],
       hasGrid: true,
       image: null,
       pixelSize: 10,
-      rowCount: 100,
+      rowCount: "",
       spaceColor: [255, 255, 255, 255],
     }
   }
@@ -125,22 +125,20 @@ class BitStitchEditor extends Component {
     return (
       <div className="bitstitch-editor">
         <div className="bitstitch-editor__field">
-          <span className="bitstitch-editor__field-label">Rows</span>
           <TextInput
             className="bitstitch-editor__field-input"
             hasError={this.state.rowCount < 1}
             onChange={e => { this.onCountChange(e, "rowCount"); }}
-            placeholder="0"
+            placeholder="Row Count"
             value={this.state.rowCount}
           />
         </div>
         <div className="bitstitch-editor__field">
-          <span className="bitstitch-editor__field-label">Columns</span>
           <TextInput
             className="bitstitch-editor__field-input"
             hasError={this.state.columnCount < 1}
             onChange={e => { this.onCountChange(e, "columnCount"); }}
-            placeholder="0"
+            placeholder="Column Count"
             value={this.state.columnCount}
           />
         </div>
