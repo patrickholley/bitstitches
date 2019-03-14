@@ -7,31 +7,57 @@
   height: calc(100% - 2px);
   padding: 0 10px;
   width: calc(100% - 22px);
+}
 
-  &.error {
-    box-shadow: inset 0 0 3px 1px var(--red);
-  }
+.text-input__error {
+  animation: fadein 0.25s;
+  bottom: -30px;
+  color: var(--error);
+  font-size: 0.9em;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  transition: opacity 0.25s;
 }
 
 .text-input__wrapper {
-  box-shadow: 0 0 3px 1px #aaa;
+  box-shadow: 0 0 3px 1px var(--grey);
   height: 40px;
-  margin-top: 10px;
+  margin: 10px 0;
   position: relative;
+  line-height: 40px;
 
-  &::after {
-    content: "Row Count";
-    line-height: 40px;
-    position: absolute;
-    top: 0;
-    left: 5px;
+  &.error {
+    box-shadow: 0 0 3px 1px var(--error);
+
+    &::after {
+      color: var(--error);
+    }
+
+    & > .text-input__error {
+      opacity: 1;
+    }
   }
 
-  &:focus-within::after {
-    content: "Row Count";
-    line-height: 40px;
+  &.placeholder::after {
+    left: 10px;
+    pointer-events: none;
+    top: 0;
+  }
+
+  &.label, &.placeholder:focus-within {
+    &::after {
+      font-size: 0.8rem;
+      left: 0;
+      top: -30px;
+    }
+  }
+
+  &::after {
+    color: var(--grey);
+    content: attr(props-label);
     position: absolute;
-    top: -30px;
-    left: 0;
+    transition: all 0.25s;
+    transition-timing-function: ease-in-out;
   }
 }

@@ -127,18 +127,18 @@ class BitStitchEditor extends Component {
         <div className="bitstitch-editor__field">
           <TextInput
             className="bitstitch-editor__field-input"
-            hasError={this.state.rowCount < 1}
+            errorMessage="Must be between 1 and 250"
+            label="Row Count"
             onChange={e => { this.onCountChange(e, "rowCount"); }}
-            placeholder="Row Count"
             value={this.state.rowCount}
           />
         </div>
         <div className="bitstitch-editor__field">
           <TextInput
             className="bitstitch-editor__field-input"
-            hasError={this.state.columnCount < 1}
+            errorMessage="Must be between 1 and 250"
+            label="Column Count"
             onChange={e => { this.onCountChange(e, "columnCount"); }}
-            placeholder="Column Count"
             value={this.state.columnCount}
           />
         </div>
