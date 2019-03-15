@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import './BitStitchEditor.scss';
-import ImageUploader from '../ImageUploader';
-import TextInput from '../../lib/TextInput';
-import Button from '../../lib/Button';
+import React, { Component } from "react";
+import "./BitStitchEditor.scss";
+import ImageUploader from "../ImageUploader";
+import TextInput from "../../lib/TextInput";
+import Button from "../../lib/Button";
 
 class BitStitchEditor extends Component {
   constructor(props) {
@@ -15,19 +15,18 @@ class BitStitchEditor extends Component {
       image: null,
       pixelSize: 10,
       rowCount: "",
-      spaceColor: [255, 255, 255, 255],
-    }
+      spaceColor: [255, 255, 255, 255]
+    };
   }
 
   onUpload = imageFile => {
     const { columnCount, rowCount } = this.state;
     if (columnCount === "" || rowCount === "") {
       console.error("Please enter a number into each field");
-    }
-    else {
+    } else {
       const reader = new FileReader();
 
-      reader.onload = (file) => {
+      reader.onload = file => {
         const image = new Image();
         image.onload = () => {
           this.setState({ image });
@@ -39,7 +38,8 @@ class BitStitchEditor extends Component {
     }
   };
 
-  outOfBounds = (x, y, width, height) => x < 0 || x >= height || y < 0 || y >= width;
+  outOfBounds = (x, y, width, height) =>
+    x < 0 || x >= height || y < 0 || y >= width;
 
   onImageLoad = () => {
     const {
@@ -49,48 +49,54 @@ class BitStitchEditor extends Component {
       image,
       pixelSize,
       rowCount,
-      spaceColor,
+      spaceColor
     } = this.state;
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     const { width, height } = image;
     canvas.width = width;
     canvas.height = height;
-    const context = canvas.getContext('2d');
+    const context = canvas.getContext("2d");
     context.drawImage(image, 0, 0);
     const imageData = context.getImageData(0, 0, width, height).data;
     const heightPerRow = height / rowCount;
     const widthPerColumn = width / columnCount;
     const ratioDifference = heightPerRow - widthPerColumn;
     const scale = ratioDifference > 0 ? heightPerRow : widthPerColumn;
-    const buffer = new Uint8ClampedArray(rowCount * columnCount * 4 * pixelSize * pixelSize);
-    const xOffset = ratioDifference < 0 ? ((widthPerColumn * rowCount) - height) / 2 : 0;
-    const yOffset = ratioDifference > 0 ? ((heightPerRow * columnCount) - width) / 2 : 0;
+    const buffer = new Uint8ClampedArray(
+      rowCount * columnCount * 4 * pixelSize * pixelSize
+    );
+    const xOffset =
+      ratioDifference < 0 ? (widthPerColumn * rowCount - height) / 2 : 0;
+    const yOffset =
+      ratioDifference > 0 ? (heightPerRow * columnCount - width) / 2 : 0;
 
     for (let i = 0; i < rowCount; i++) {
       for (let j = 0; j < columnCount; j++) {
-        const x = Math.round((scale * i) - xOffset);
-        const y = Math.round((scale * j) - yOffset);
+        const x = Math.round(scale * i - xOffset);
+        const y = Math.round(scale * j - yOffset);
 
         for (let k = 0; k < pixelSize; k++) {
           for (let l = 0; l < pixelSize; l++) {
             let colorSource;
             let colorIndex = 0;
-            const bufferIndex = (((columnCount * pixelSize) * ((i * pixelSize) + k)) + (j * pixelSize) + l) * 4;
+            const bufferIndex =
+              (columnCount * pixelSize * (i * pixelSize + k) +
+                j * pixelSize +
+                l) *
+              4;
             if (
-              (
-                k === (pixelSize - 1)
-                || l === (pixelSize - 1)
-                || (i === 0 && k === 0)
-                || (j === 0 && l === 0)
-              ) && hasGrid
+              (k === pixelSize - 1 ||
+                l === pixelSize - 1 ||
+                (i === 0 && k === 0) ||
+                (j === 0 && l === 0)) &&
+              hasGrid
             ) {
               colorSource = gridColor;
-            }
-            else if (this.outOfBounds(x, y, width, height)) {
+            } else if (this.outOfBounds(x, y, width, height)) {
               colorSource = spaceColor;
             } else {
               colorSource = imageData;
-              colorIndex = ((width * x) + y) * 4;
+              colorIndex = (width * x + y) * 4;
             }
             for (let i = 0; i < 4; i++) {
               buffer[bufferIndex + i] = colorSource[colorIndex + i];
@@ -114,7 +120,7 @@ class BitStitchEditor extends Component {
     let { value } = e.target;
     if (Number.isInteger(parseInt(e.target.value)) || value === "") {
       if (value !== "") {
-        if (value > 500) value = 500;
+        if (value > 250) value = 250;
         else if (value <= 0) value = 1;
       }
       this.setState({ [countKey]: value });
@@ -127,18 +133,22 @@ class BitStitchEditor extends Component {
         <div className="bitstitch-editor__field">
           <TextInput
             className="bitstitch-editor__field-input"
-            errorMessage="Must be between 1 and 250"
             label="Row Count"
-            onChange={e => { this.onCountChange(e, "rowCount"); }}
+            onChange={e => {
+              this.onCountChange(e, "rowCount");
+            }}
+            type="number"
             value={this.state.rowCount}
           />
         </div>
         <div className="bitstitch-editor__field">
           <TextInput
             className="bitstitch-editor__field-input"
-            errorMessage="Must be between 1 and 250"
             label="Column Count"
-            onChange={e => { this.onCountChange(e, "columnCount"); }}
+            onChange={e => {
+              this.onCountChange(e, "columnCount");
+            }}
+            type="number"
             value={this.state.columnCount}
           />
         </div>
@@ -156,7 +166,7 @@ class BitStitchEditor extends Component {
           />
         </div>
       </div>
-    )
+    );
   }
 }
 

@@ -1,4 +1,23 @@
+@keyframes shake {
+  from {
+    top: 0;
+  }
+
+  25% {
+    top: -5px;
+  }
+
+  75% {
+    top: 5px;
+  }
+
+  to {
+    top: 0;
+  }
+}
+
 .text-input {
+  -moz-appearance: textfield;
   border: none;
   border-radius: 0;
   background: white;
@@ -10,7 +29,6 @@
 }
 
 .text-input__error {
-  animation: fadein 0.25s;
   bottom: -30px;
   color: var(--error);
   font-size: 0.9em;
@@ -28,6 +46,7 @@
   line-height: 40px;
 
   &.error {
+    animation: shake 0.25s;
     box-shadow: 0 0 3px 1px var(--error);
 
     &::after {
@@ -45,7 +64,8 @@
     top: 0;
   }
 
-  &.label, &.placeholder:focus-within {
+  &.label,
+  &.placeholder:focus-within {
     &::after {
       font-size: 0.8rem;
       left: 0;

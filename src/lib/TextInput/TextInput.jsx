@@ -1,18 +1,28 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import classNames from "classnames";
-import './TextInput.scss';
+import "./TextInput.scss";
 
 class TextInput extends Component {
   constructor() {
     super();
 
     this.state = {
-      isPristine: true,
-    }
+      isPristine: true
+    };
   }
 
   render() {
-    const { className, errorMessage, label, onChange, validate, value } = this.props;
+    const {
+      className,
+      errorMessage,
+      label,
+      min,
+      max,
+      onChange,
+      type,
+      validate,
+      value
+    } = this.props;
     const { isPristine } = this.state;
 
     const hasError = !isPristine && !validate(value);
@@ -20,9 +30,9 @@ class TextInput extends Component {
     return (
       <div
         className={classNames({
-          'text-input__wrapper': true,
-          label: value !== '',
-          placeholder: value === '',
+          "text-input__wrapper": true,
+          label: value !== "",
+          placeholder: value === "",
           error: hasError,
           [className]: !!className
         })}
@@ -34,6 +44,7 @@ class TextInput extends Component {
           onBlur={() => {
             if (isPristine) this.setState({ isPristine: false });
           }}
+          type={type}
           value={value}
         />
         <span className="text-input__error">{errorMessage}</span>
@@ -43,7 +54,7 @@ class TextInput extends Component {
 }
 
 TextInput.defaultProps = {
-  errorMessage: "Ehhh",
+  errorMessage: "Required",
   validate: value => value !== ""
 };
 
