@@ -16,8 +16,6 @@ class TextInput extends Component {
       className,
       errorMessage,
       label,
-      min,
-      max,
       onChange,
       type,
       validate,

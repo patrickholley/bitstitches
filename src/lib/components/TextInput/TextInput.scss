@@ -1,3 +1,5 @@
+@import "../../styles/_mixins";
+
 @keyframes shake {
   from {
     top: 0;
@@ -17,7 +19,7 @@
 }
 
 .text-input {
-  -moz-appearance: textfield;
+  @include appearance(textfield);
   border: none;
   border-radius: 0;
   background: white;

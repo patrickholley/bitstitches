@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
-import ErrorBoundary from './lib/ErrorBoundary';
-import MainRouter from './MainRouter';
+import React, { Component } from "react";
+import ErrorBoundary from "./lib/components/ErrorBoundary";
+import MainRouter from "./MainRouter";
 
 class App extends Component {
   render() {
@@ -8,7 +8,7 @@ class App extends Component {
       <ErrorBoundary>
         <MainRouter />
       </ErrorBoundary>
-    )
+    );
   }
 }
 

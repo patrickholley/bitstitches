@@ -1,14 +1,11 @@
+@import "../../lib/styles/_mixins";
+
 .bitstitch-editor__field {
-  margin-top: 10px;
   width: 100%;
 }
 
-.bitstitch-editor__field-input {
-  width: 240px;
-}
-
 .bitstitch-editor__preview {
-  width: 240px;
+  width: 100%;
 }
 
 .bitstitch-editor__preview-wrapper {
@@ -16,10 +13,34 @@
   width: 100%;
 }
 
+.bitstitch-editor__subtitle {
+  font-style: italic;
+  margin: 0 0 10px;
+  text-transform: lowercase;
+}
+
+.bitstitch-editor__title {
+  color: var(--green);
+  font-family: Bringshoot, sans-serif;
+  font-size: 64px;
+  font-weight: bold;
+  margin: 0;
+  @include user-select(none);
+}
+
+.bitstitch-editor__title-underline {
+  fill: transparent;
+  stroke: var(--green);
+  stroke-width: 4px;
+  margin-top: -12px;
+  z-index: -1;
+}
+
 .bitstitch-editor {
   display: flex;
   flex-flow: column;
   justify-content: center;
   margin: 0 auto;
+  text-align: center;
   width: 240px;
 }

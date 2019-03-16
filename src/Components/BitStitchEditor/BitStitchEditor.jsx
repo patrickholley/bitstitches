@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import "./BitStitchEditor.scss";
 import ImageUploader from "../ImageUploader";
-import TextInput from "../../lib/TextInput";
-import Button from "../../lib/Button";
+import TextInput from "../../lib/components/TextInput";
+import Button from "../../lib/components/Button";
 
 class BitStitchEditor extends Component {
   constructor(props) {
@@ -13,6 +13,7 @@ class BitStitchEditor extends Component {
       gridColor: [0, 0, 0, 255],
       hasGrid: true,
       image: null,
+      imageName: null,
       pixelSize: 10,
       rowCount: "",
       spaceColor: [255, 255, 255, 255]
@@ -29,7 +30,7 @@ class BitStitchEditor extends Component {
       reader.onload = file => {
         const image = new Image();
         image.onload = () => {
-          this.setState({ image });
+          this.setState({ image, imageName: imageFile.name });
         };
         image.src = file.target.result;
       };
@@ -117,6 +118,7 @@ class BitStitchEditor extends Component {
   };
 
   onCountChange = (e, countKey) => {
+    // TODO: use regex
     let { value } = e.target;
     if (Number.isInteger(parseInt(e.target.value)) || value === "") {
       if (value !== "") {
@@ -130,29 +132,36 @@ class BitStitchEditor extends Component {
   render() {
     return (
       <div className="bitstitch-editor">
-        <div className="bitstitch-editor__field">
-          <TextInput
-            className="bitstitch-editor__field-input"
-            label="Row Count"
-            onChange={e => {
-              this.onCountChange(e, "rowCount");
-            }}
-            type="number"
-            value={this.state.rowCount}
-          />
-        </div>
-        <div className="bitstitch-editor__field">
-          <TextInput
-            className="bitstitch-editor__field-input"
-            label="Column Count"
-            onChange={e => {
-              this.onCountChange(e, "columnCount");
-            }}
-            type="number"
-            value={this.state.columnCount}
-          />
-        </div>
-        <ImageUploader onUpload={this.onUpload} />
+        <span className="bitstitch-editor__title">BitStitches</span>
+        <svg
+          width="240"
+          height="12"
+          className="bitstitch-editor__title-underline"
+        >
+          <path d="M0 7 C 120 0 180 0 240 5" />
+        </svg>
+        <h3 className="bitstitch-editor__subtitle">
+          Cross-stitch pattern and pixel art creation software
+        </h3>
+        <TextInput
+          className="bitstitch-editor__field"
+          label="Row Count"
+          onChange={e => {
+            this.onCountChange(e, "rowCount");
+          }}
+          type="number"
+          value={this.state.rowCount}
+        />
+        <TextInput
+          className="bitstitch-editor__field"
+          label="Column Count"
+          onChange={e => {
+            this.onCountChange(e, "columnCount");
+          }}
+          type="number"
+          value={this.state.columnCount}
+        />
+        <ImageUploader label={this.state.imageName} onUpload={this.onUpload} />
         <Button
           className="bitstitch-editor__submit"
           onClick={this.onImageLoad}
