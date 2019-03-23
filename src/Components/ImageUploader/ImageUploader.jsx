@@ -13,7 +13,6 @@ class ImageUploader extends Component {
 
   render() {
     const { label } = this.props;
-    console.log(label);
 
     return (
       <div className="image-uploader__wrapper">

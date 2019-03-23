@@ -11,18 +11,26 @@ class TextInput extends Component {
     };
   }
 
+  onKeyPress = {
+    number: e => {
+      if (!Number.isNaN(e.key)) {
+        e.preventDefault();
+      }
+    }
+  };
+
   render() {
     const {
       className,
       errorMessage,
       label,
       onChange,
-      type,
+      numPad,
+      pattern,
       validate,
       value
     } = this.props;
     const { isPristine } = this.state;
-
     const hasError = !isPristine && !validate(value);
 
     return (
@@ -34,7 +42,7 @@ class TextInput extends Component {
           error: hasError,
           [className]: !!className
         })}
-        props-label={label}
+        data-label={label}
       >
         <input
           className="text-input"
@@ -42,7 +50,8 @@ class TextInput extends Component {
           onBlur={() => {
             if (isPristine) this.setState({ isPristine: false });
           }}
-          type={type}
+          pattern={pattern}
+          type={numPad ? "tel" : "text"}
           value={value}
         />
         <span className="text-input__error">{errorMessage}</span>

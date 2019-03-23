@@ -118,15 +118,13 @@ class BitStitchEditor extends Component {
   };
 
   onCountChange = (e, countKey) => {
-    // TODO: use regex
     let { value } = e.target;
-    if (Number.isInteger(parseInt(e.target.value)) || value === "") {
-      if (value !== "") {
-        if (value > 250) value = 250;
-        else if (value <= 0) value = 1;
-      }
-      this.setState({ [countKey]: value });
+    if (value !== "") {
+      if (isNaN(value)) return;
+      if (value > 250) value = 250;
+      else if (value <= 0) value = 1;
     }
+    this.setState({ [countKey]: value });
   };
 
   render() {
@@ -149,7 +147,7 @@ class BitStitchEditor extends Component {
           onChange={e => {
             this.onCountChange(e, "rowCount");
           }}
-          type="number"
+          numPad
           value={this.state.rowCount}
         />
         <TextInput
@@ -158,7 +156,7 @@ class BitStitchEditor extends Component {
           onChange={e => {
             this.onCountChange(e, "columnCount");
           }}
-          type="number"
+          numPad
           value={this.state.columnCount}
         />
         <ImageUploader label={this.state.imageName} onUpload={this.onUpload} />
