@@ -1,9 +1,11 @@
 :root {
-  --burgundy: #5a3439;
+  --burgundy: rgb(90, 52, 57);
+  --burgundy_dim: rgba(90, 52, 57, 0.8);
   --black: #222;
   --error: #c00;
   --green-light: #8eb19c;
-  --green: #60958b;
+  --green: rgb(96, 149, 139);
+  --green_dim: rgba(96, 149, 139, 0.8);
   --grey: #444;
   --orange: #a75037;
   --orange-light: #db9c77;
@@ -25,4 +27,11 @@ body {
   font-family: Modikasti, sans-serif;
   margin: 0;
   padding: 0;
+}
+
+input[type="file"] {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  z-index: -1;
 }

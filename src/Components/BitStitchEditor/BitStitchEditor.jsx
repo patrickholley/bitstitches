@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import "./BitStitchEditor.scss";
-import ImageUploader from "../ImageUploader";
 import TextInput from "../../lib/components/TextInput";
 import Button from "../../lib/components/Button";
 
@@ -20,7 +19,8 @@ class BitStitchEditor extends Component {
     };
   }
 
-  onUpload = imageFile => {
+  onUpload = (e, dataKey) => {
+    const imageFile = e[dataKey].files[0];
     const { columnCount, rowCount } = this.state;
     if (columnCount === "" || rowCount === "") {
       console.error("Please enter a number into each field");
@@ -159,19 +159,28 @@ class BitStitchEditor extends Component {
           numPad
           value={this.state.columnCount}
         />
-        <ImageUploader label={this.state.imageName} onUpload={this.onUpload} />
-        <Button
-          className="bitstitch-editor__submit"
-          onClick={this.onImageLoad}
-          text="Create BitStitch"
-        />
-        <div className="bitstitch-editor__preview-wrapper">
+        <span className="bitstitch-editor__file-span">
+          {this.state.image
+            ? `Uploaded image: ${this.state.imageName}`
+            : "Please upload an image"}
+        </span>
+        <label className="bitstitch-editor__upload-label">
+          <input
+            type="file"
+            onChange={e => {
+              this.onUpload(e, "target");
+            }}
+          />
+          <span className="bitstitch-editor__upload-span">Select Image</span>
+        </label>
+        <Button onClick={this.onImageLoad} submit text="Create BitStitch" />
+        {/*<div className="bitstitch-editor__preview-wrapper">
           <img
             alt="uploaded cross-stitch pattern"
             className="bitstitch-editor__preview"
             src={this.state.image}
           />
-        </div>
+        </div>*/}
       </div>
     );
   }

@@ -80,10 +80,9 @@
   }
 
   &::after {
+    @include transition(all ease-in-out 0.25s);
     color: var(--grey);
     content: attr(data-label);
     position: absolute;
-    transition: all 0.25s;
-    transition-timing-function: ease-in-out;
   }
 }

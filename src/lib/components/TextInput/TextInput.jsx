@@ -11,14 +11,6 @@ class TextInput extends Component {
     };
   }
 
-  onKeyPress = {
-    number: e => {
-      if (!Number.isNaN(e.key)) {
-        e.preventDefault();
-      }
-    }
-  };
-
   render() {
     const {
       className,

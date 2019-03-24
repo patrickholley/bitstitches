@@ -1,3 +1,5 @@
+@import "../../lib/styles/_mixins";
+
 .header {
   align-items: center;
   background-color: var(--burgundy);
@@ -8,6 +10,7 @@
 }
 
 .header__title {
+  @include user-select(none);
   font-family: Bringshoot, sans-serif;
   font-size: 36px;
   margin-left: 20px;

@@ -1,3 +1,30 @@
+@import "../../styles/_mixins";
+
 .button {
+  border: none;
+  border-radius: 3px;
+  color: white;
+  font-family: Modikasti, sans-serif;
+  font-size: 18px;
+  font-weight: bold;
   height: 40px;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+
+  &.primary {
+    background-color: var(--burgundy);
+
+    &:hover {
+      background-color: var(--burgundy_dim);
+    }
+  }
+
+  &.secondary {
+    background-color: var(--green);
+
+    &:hover {
+      background-color: var(--green_dim);
+    }
+  }
 }

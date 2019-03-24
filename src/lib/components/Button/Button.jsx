@@ -1,14 +1,19 @@
 import React from "react";
+import classNames from "classnames";
 import "./Button.scss";
 
-const Button = props => (
+const Button = ({ className, onClick, secondary, submit, text }) => (
   <button
-    className={`button ${props.className}`}
-    form={props.formId}
-    onClick={props.onClick}
-    type="button"
+    className={classNames({
+      button: true,
+      [className]: !!className,
+      primary: !secondary,
+      secondary
+    })}
+    onClick={onClick}
+    type={submit ? "submit" : "button"}
   >
-    {props.text}
+    {text}
   </button>
 );
 
