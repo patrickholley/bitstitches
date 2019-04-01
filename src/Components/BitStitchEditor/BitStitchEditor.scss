@@ -36,6 +36,10 @@
 }
 
 .bitstitch-editor__title {
+  position: relative;
+}
+
+.bitstitch-editor__title-span {
   @include user-select(none);
   color: var(--green);
   font-family: Bringshoot, sans-serif;
@@ -45,10 +49,9 @@
 }
 
 .bitstitch-editor__title-underline {
-  fill: transparent;
-  stroke: var(--green);
-  stroke-width: 4px;
-  margin-top: -12px;
+  top: 70px;
+  left: 0;
+  position: absolute;
 }
 
 .bitstitch-editor__upload-label {
@@ -71,4 +74,8 @@
 }
 
 .bitstitch-editor__upload-span {
+}
+
+.bitstitch-editor__pdf {
+  visibility: hidden;
 }

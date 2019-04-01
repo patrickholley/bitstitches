@@ -1,30 +1,114 @@
 import React, { Component } from "react";
-import "./BitStitchEditor.scss";
+import JSPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { centerText } from "../../lib/util/jsPDFHelpers";
 import TextInput from "../../lib/components/TextInput";
 import Button from "../../lib/components/Button";
+import "./BitStitchEditor.scss";
+import "../../../assets/fonts/Modikasti-normal";
+import "../../../assets/fonts/Bringshoot-normal";
 
 class BitStitchEditor extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      columnCount: "",
-      gridColor: [0, 0, 0, 255],
+      bitStitch: null,
+      gridColor: [63, 63, 63, 255],
       hasGrid: true,
       image: null,
       imageName: null,
       pixelSize: 10,
-      rowCount: "",
-      spaceColor: [255, 255, 255, 255]
+      rowCount: "108"
     };
   }
 
-  onUpload = (e, dataKey) => {
+  createBitStitch = () => {
+    const { image, gridColor, pixelSize, rowCount } = this.state;
+
+    // create canvas for base image
+    const imageWidth = image.width;
+    const imageHeight = image.height;
+    const imageCanvas = document.createElement("canvas");
+    const imageContext = imageCanvas.getContext("2d");
+    imageCanvas.width = imageWidth;
+    imageCanvas.height = imageHeight;
+    imageContext.drawImage(image, 0, 0);
+    const imageData = imageContext.getImageData(0, 0, imageWidth, imageHeight)
+      .data;
+
+    // create canvas for bitStitch
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    const columnCount = Math.floor((rowCount * imageWidth) / imageHeight);
+    canvas.width = columnCount * pixelSize;
+    canvas.height = rowCount * pixelSize;
+    const { width, height } = canvas;
+
+    const buffer = new Uint8ClampedArray(
+      rowCount * columnCount * 4 * pixelSize * pixelSize
+    );
+
+    // fill pixels of bitStitch with correct color
+    for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
+      const imageRowNumber = Math.floor((imageHeight * rowNumber) / rowCount);
+      const y = rowNumber * pixelSize;
+
+      for (let columnNumber = 0; columnNumber < columnCount; columnNumber++) {
+        const imageColumnNumber = Math.floor(
+          (imageWidth * columnNumber) / columnCount
+        );
+        const x = columnNumber * pixelSize;
+        const pixelIndex =
+          (imageRowNumber * imageWidth + imageColumnNumber) * 4;
+
+        const pixelColor = imageData.slice(pixelIndex, pixelIndex + 4);
+
+        for (let pixelRow = 0; pixelRow < pixelSize; pixelRow++) {
+          for (let pixelColumn = 0; pixelColumn < pixelSize; pixelColumn++) {
+            const bufferIndex = (width * (y + pixelRow) + x + pixelColumn) * 4;
+            const colorSource =
+              pixelRow === 0 || pixelColumn === 0 ? gridColor : pixelColor;
+
+            for (let colorParam = 0; colorParam < 4; colorParam++) {
+              buffer[bufferIndex + colorParam] = colorSource[colorParam];
+            }
+          }
+        }
+      }
+    }
+
+    // draw right and bottom border
+    canvas.width = width + 1;
+    canvas.height = height + 1;
+    context.strokeStyle = "#333";
+    context.beginPath();
+    context.moveTo(0, 1080);
+    context.lineTo(1920, 1080);
+    context.lineTo(1920, 0);
+    context.stroke();
+
+    // set letter on each color
+    for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
+      for (let columnNumber = 0; columnNumber < columnCount; columnNumber++) {
+        // figure out why fillText nor strokeText are showing
+      }
+    }
+
+    // create image from bitStitch canvas
+    const bufferData = context.createImageData(width, height);
+    bufferData.data.set(buffer);
+    context.putImageData(bufferData, 0, 0);
+    const bufferImage = canvas.toDataURL();
+    this.setState({ bitStitch: bufferImage });
+  };
+
+  onUpload(e, dataKey) {
     const imageFile = e[dataKey].files[0];
-    const { columnCount, rowCount } = this.state;
-    if (columnCount === "" || rowCount === "") {
-      console.error("Please enter a number into each field");
-    } else {
+    const validExtensions = ["bmp", "gif", "jpg", "png"];
+    const imageExtension = imageFile.name.split(".").pop();
+
+    if (validExtensions.includes(imageExtension)) {
       const reader = new FileReader();
 
       reader.onload = file => {
@@ -37,87 +121,9 @@ class BitStitchEditor extends Component {
 
       reader.readAsDataURL(imageFile);
     }
-  };
+  }
 
-  outOfBounds = (x, y, width, height) =>
-    x < 0 || x >= height || y < 0 || y >= width;
-
-  onImageLoad = () => {
-    const {
-      columnCount,
-      gridColor,
-      hasGrid,
-      image,
-      pixelSize,
-      rowCount,
-      spaceColor
-    } = this.state;
-    const canvas = document.createElement("canvas");
-    const { width, height } = image;
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext("2d");
-    context.drawImage(image, 0, 0);
-    const imageData = context.getImageData(0, 0, width, height).data;
-    const heightPerRow = height / rowCount;
-    const widthPerColumn = width / columnCount;
-    const ratioDifference = heightPerRow - widthPerColumn;
-    const scale = ratioDifference > 0 ? heightPerRow : widthPerColumn;
-    const buffer = new Uint8ClampedArray(
-      rowCount * columnCount * 4 * pixelSize * pixelSize
-    );
-    const xOffset =
-      ratioDifference < 0 ? (widthPerColumn * rowCount - height) / 2 : 0;
-    const yOffset =
-      ratioDifference > 0 ? (heightPerRow * columnCount - width) / 2 : 0;
-
-    for (let i = 0; i < rowCount; i++) {
-      for (let j = 0; j < columnCount; j++) {
-        const x = Math.round(scale * i - xOffset);
-        const y = Math.round(scale * j - yOffset);
-
-        for (let k = 0; k < pixelSize; k++) {
-          for (let l = 0; l < pixelSize; l++) {
-            let colorSource;
-            let colorIndex = 0;
-            const bufferIndex =
-              (columnCount * pixelSize * (i * pixelSize + k) +
-                j * pixelSize +
-                l) *
-              4;
-            if (
-              (k === pixelSize - 1 ||
-                l === pixelSize - 1 ||
-                (i === 0 && k === 0) ||
-                (j === 0 && l === 0)) &&
-              hasGrid
-            ) {
-              colorSource = gridColor;
-            } else if (this.outOfBounds(x, y, width, height)) {
-              colorSource = spaceColor;
-            } else {
-              colorSource = imageData;
-              colorIndex = (width * x + y) * 4;
-            }
-            for (let i = 0; i < 4; i++) {
-              buffer[bufferIndex + i] = colorSource[colorIndex + i];
-            }
-          }
-        }
-      }
-    }
-
-    canvas.width = columnCount * pixelSize;
-    canvas.height = rowCount * pixelSize;
-    const bufferData = context.createImageData(canvas.width, canvas.height);
-    bufferData.data.set(buffer);
-    context.putImageData(bufferData, 0, 0);
-    const bufferImage = canvas.toDataURL();
-
-    this.setState({ image: bufferImage });
-  };
-
-  onCountChange = (e, countKey) => {
+  onCountChange(e, countKey) {
     let { value } = e.target;
     if (value !== "") {
       if (isNaN(value)) return;
@@ -125,19 +131,24 @@ class BitStitchEditor extends Component {
       else if (value <= 0) value = 1;
     }
     this.setState({ [countKey]: value });
-  };
+  }
 
   render() {
     return (
       <div className="bitstitch-editor">
-        <span className="bitstitch-editor__title">BitStitches</span>
-        <svg
-          width="240"
-          height="12"
-          className="bitstitch-editor__title-underline"
-        >
-          <path d="M0 7 C 120 0 180 0 240 5" />
-        </svg>
+        <div className="bitstitch-editor__title">
+          <span className="bitstitch-editor__title-span">BitStitches</span>
+          <svg
+            width="240"
+            height="12"
+            className="bitstitch-editor__title-underline"
+            fill="transparent"
+            strokeWidth="4"
+            stroke="rgb(96, 149, 139)"
+          >
+            <path d="M0 7 C 120 0 180 0 240 5" />
+          </svg>
+        </div>
         <h3 className="bitstitch-editor__subtitle">
           Cross-stitch pattern and pixel art creation software
         </h3>
@@ -149,15 +160,6 @@ class BitStitchEditor extends Component {
           }}
           numPad
           value={this.state.rowCount}
-        />
-        <TextInput
-          className="bitstitch-editor__field"
-          label="Column Count"
-          onChange={e => {
-            this.onCountChange(e, "columnCount");
-          }}
-          numPad
-          value={this.state.columnCount}
         />
         <span className="bitstitch-editor__file-span">
           {this.state.image
@@ -173,14 +175,14 @@ class BitStitchEditor extends Component {
           />
           <span className="bitstitch-editor__upload-span">Select Image</span>
         </label>
-        <Button onClick={this.onImageLoad} submit text="Create BitStitch" />
-        {/*<div className="bitstitch-editor__preview-wrapper">
+        <Button onClick={this.createBitStitch} submit text="Create BitStitch" />
+        <div className="bitstitch-editor__preview-wrapper">
           <img
             alt="uploaded cross-stitch pattern"
             className="bitstitch-editor__preview"
-            src={this.state.image}
+            src={this.state.bitStitch}
           />
-        </div>*/}
+        </div>
       </div>
     );
   }

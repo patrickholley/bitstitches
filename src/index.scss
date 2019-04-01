@@ -4,8 +4,8 @@
   --black: #222;
   --error: #c00;
   --green-light: #8eb19c;
-  --green: rgb(96, 149, 139);
   --green_dim: rgba(96, 149, 139, 0.8);
+  --green: rgb(96, 149, 139);
   --grey: #444;
   --orange: #a75037;
   --orange-light: #db9c77;
@@ -19,7 +19,7 @@
 
 @font-face {
   font-family: Modikasti;
-  src: url("../assets/fonts/Modikasti-Regular.otf");
+  src: url("../assets/fonts/Modikasti.ttf");
 }
 
 body {

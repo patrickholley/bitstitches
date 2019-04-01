@@ -4,11 +4,12 @@
   border: none;
   border-radius: 3px;
   color: white;
+  cursor: pointer;
   font-family: Modikasti, sans-serif;
   font-size: 18px;
   font-weight: bold;
   height: 40px;
-  cursor: pointer;
+  padding: 0;
   text-align: center;
   text-transform: uppercase;
 
@@ -26,5 +27,9 @@
     &:hover {
       background-color: var(--green_dim);
     }
+  }
+
+  &::-moz-focus-inner {
+    border: 0;
   }
 }

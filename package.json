@@ -18,6 +18,8 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "file-loader": "^3.0.1",
+    "html2canvas": "^1.0.0-alpha.12",
+    "jspdf": "^1.5.3",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-router-dom": "^4.3.1"
