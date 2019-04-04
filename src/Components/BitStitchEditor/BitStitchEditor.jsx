@@ -1,7 +1,4 @@
 import React, { Component } from "react";
-import JSPDF from "jspdf";
-import html2canvas from "html2canvas";
-import { centerText } from "../../lib/util/jsPDFHelpers";
 import TextInput from "../../lib/components/TextInput";
 import Button from "../../lib/components/Button";
 import "./BitStitchEditor.scss";
