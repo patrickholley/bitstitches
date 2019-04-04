@@ -17,7 +17,7 @@ class BitStitchEditor extends Component {
       gridColor: [63, 63, 63, 255],
       hasGrid: true,
       image: null,
-      imageName: null,
+      imageLabel: "Please upload an image",
       pixelSize: 10,
       rowCount: "108"
     };
@@ -88,19 +88,16 @@ class BitStitchEditor extends Component {
     context.lineTo(1920, 0);
     context.stroke();
 
-    // set letter on each color
-    for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
-      for (let columnNumber = 0; columnNumber < columnCount; columnNumber++) {
-        // figure out why fillText nor strokeText are showing
-      }
-    }
-
-    // create image from bitStitch canvas
+    // create image from bitStitch canvas and redraw it to canvas
     const bufferData = context.createImageData(width, height);
     bufferData.data.set(buffer);
     context.putImageData(bufferData, 0, 0);
-    const bufferImage = canvas.toDataURL();
-    this.setState({ bitStitch: bufferImage });
+    const bufferImageSrc = canvas.toDataURL();
+    const bufferImage = new Image();
+    bufferImage.src = bufferImageSrc;
+    context.drawImage(bufferImage, 0, 0);
+
+    this.setState({ bitStitch: canvas.toDataURL() });
   };
 
   onUpload(e, dataKey) {
@@ -114,13 +111,13 @@ class BitStitchEditor extends Component {
       reader.onload = file => {
         const image = new Image();
         image.onload = () => {
-          this.setState({ image, imageName: imageFile.name });
+          this.setState({ image, imageLabel: imageFile.name });
         };
         image.src = file.target.result;
       };
 
       reader.readAsDataURL(imageFile);
-    }
+    } else this.setState({ imageLabel: "Invalid file type" });
   }
 
   onCountChange(e, countKey) {
@@ -162,9 +159,7 @@ class BitStitchEditor extends Component {
           value={this.state.rowCount}
         />
         <span className="bitstitch-editor__file-span">
-          {this.state.image
-            ? `Uploaded image: ${this.state.imageName}`
-            : "Please upload an image"}
+          {this.state.imageLabel}
         </span>
         <label className="bitstitch-editor__upload-label">
           <input
@@ -175,13 +170,20 @@ class BitStitchEditor extends Component {
           />
           <span className="bitstitch-editor__upload-span">Select Image</span>
         </label>
-        <Button onClick={this.createBitStitch} submit text="Create BitStitch" />
+        <Button
+          disabled={this.state.rowCount === "" || !this.state.image}
+          onClick={this.createBitStitch}
+          submit
+          text="Create BitStitch"
+        />
         <div className="bitstitch-editor__preview-wrapper">
-          <img
-            alt="uploaded cross-stitch pattern"
-            className="bitstitch-editor__preview"
-            src={this.state.bitStitch}
-          />
+          {this.state.bitStitch && (
+            <img
+              alt="uploaded cross-stitch pattern"
+              className="bitstitch-editor__preview"
+              src={this.state.bitStitch}
+            />
+          )}
         </div>
       </div>
     );

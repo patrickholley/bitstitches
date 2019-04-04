@@ -16,7 +16,8 @@
   &.primary {
     background-color: var(--burgundy);
 
-    &:hover {
+    &:hover,
+    &:disabled {
       background-color: var(--burgundy_dim);
     }
   }
@@ -24,7 +25,8 @@
   &.secondary {
     background-color: var(--green);
 
-    &:hover {
+    &:hover,
+    &:disabled {
       background-color: var(--green_dim);
     }
   }

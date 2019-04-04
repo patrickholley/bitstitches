@@ -2,7 +2,7 @@ import React from "react";
 import classNames from "classnames";
 import "./Button.scss";
 
-const Button = ({ className, onClick, secondary, submit, text }) => (
+const Button = ({ className, disabled, onClick, secondary, submit, text }) => (
   <button
     className={classNames({
       button: true,
@@ -10,6 +10,7 @@ const Button = ({ className, onClick, secondary, submit, text }) => (
       primary: !secondary,
       secondary
     })}
+    disabled={disabled}
     onClick={onClick}
     type={submit ? "submit" : "button"}
   >
