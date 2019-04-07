@@ -12,6 +12,7 @@ class BitStitchEditor extends Component {
 
     this.state = {
       bitStitch: null,
+      colorCount: 8,
       gridColor: [63, 63, 63, 255],
       hasGrid: true,
       image: null,
@@ -23,14 +24,11 @@ class BitStitchEditor extends Component {
 
   DMCDistanceCache = {};
 
-  roundToDMCColor = color => {
-    let closestColor = {
-      key: null,
-      distance: null
-    };
+  roundToDMCColor = (color, DMCIndexes) => {
+    let closestColor = {};
 
-    for (let key in DMCFlossColors) {
-      const { red, green, blue } = DMCFlossColors[key];
+    for (let index of DMCIndexes) {
+      const { red, green, blue } = DMCFlossColors[index];
       const distance = Math.sqrt(
         Math.pow(color[0] - red, 2) +
           Math.pow(color[1] - green, 2) +
@@ -38,18 +36,16 @@ class BitStitchEditor extends Component {
       );
 
       if (!closestColor.distance || distance < closestColor.distance) {
-        closestColor.distance = distance;
-        closestColor.key = key;
+        closestColor = { distance, index };
         if (distance === 0) break;
       }
     }
 
-    const { red, green, blue } = DMCFlossColors[closestColor.key];
-    return [red, green, blue, 255];
+    return DMCFlossColors[closestColor.index];
   };
 
   createBitStitch = () => {
-    const { image, gridColor, pixelSize, rowCount } = this.state;
+    const { colorCount, image, gridColor, pixelSize, rowCount } = this.state;
 
     // create canvas for base image
     const imageWidth = image.width;
@@ -75,6 +71,39 @@ class BitStitchEditor extends Component {
     );
 
     const DMCColors = {};
+    const allDMCIndexes = Object.keys(DMCFlossColors);
+
+    for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
+      const imageRowNumber = Math.floor((imageHeight * rowNumber) / rowCount);
+
+      for (let columnNumber = 0; columnNumber < columnCount; columnNumber++) {
+        const imageColumnNumber = Math.floor(
+          (imageWidth * columnNumber) / columnCount
+        );
+        const pixelIndex =
+          (imageRowNumber * imageWidth + imageColumnNumber) * 4;
+
+        const pixelColor = imageData.slice(pixelIndex, pixelIndex + 4);
+
+        const pixelColorString = pixelColor.join(",");
+        const DMCColor =
+          this.DMCDistanceCache[pixelColorString] ||
+          this.roundToDMCColor(pixelColor, allDMCIndexes);
+        const { index } = DMCColor;
+
+        if (!this.DMCDistanceCache[pixelColorString]) {
+          this.DMCDistanceCache[pixelColorString] = DMCColor;
+        }
+
+        if (!DMCColors[index]) DMCColors[index] = 0;
+        DMCColors[index]++;
+      }
+    }
+
+    const topDMCIndexes = Object.keys(DMCColors)
+      .sort((a, b) => DMCColors[b] - DMCColors[a])
+      .slice(0, colorCount);
+    const topDMCDistanceCache = {};
 
     // fill pixels of bitStitch with correct color
     for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
@@ -92,20 +121,20 @@ class BitStitchEditor extends Component {
         const pixelColor = imageData.slice(pixelIndex, pixelIndex + 4);
         const pixelColorString = pixelColor.join(",");
         const DMCColor =
-          this.DMCDistanceCache[pixelColorString] ||
-          this.roundToDMCColor(pixelColor);
+          topDMCDistanceCache[pixelColorString] ||
+          this.roundToDMCColor(pixelColor, topDMCIndexes);
 
-        if (!this.DMCDistanceCache[pixelColorString]) {
-          this.DMCDistanceCache[pixelColorString] = DMCColor;
+        if (!topDMCDistanceCache[pixelColorString]) {
+          topDMCDistanceCache[pixelColorString] = DMCColor;
         }
-
-        DMCColors[DMCColor.join(",")] = DMCColor;
 
         for (let pixelRow = 0; pixelRow < pixelSize; pixelRow++) {
           for (let pixelColumn = 0; pixelColumn < pixelSize; pixelColumn++) {
             const bufferIndex = (width * (y + pixelRow) + x + pixelColumn) * 4;
             const colorSource =
-              pixelRow === 0 || pixelColumn === 0 ? gridColor : DMCColor;
+              pixelRow === 0 || pixelColumn === 0
+                ? gridColor
+                : [DMCColor.red, DMCColor.green, DMCColor.blue, 255];
 
             for (let colorParam = 0; colorParam < 4; colorParam++) {
               buffer[bufferIndex + colorParam] = colorSource[colorParam];
@@ -134,16 +163,12 @@ class BitStitchEditor extends Component {
     bufferImage.src = bufferImageSrc;
     context.drawImage(bufferImage, 0, 0);
 
-    console.log(this.DMCDistanceCache);
-
-    console.log(DMCColors);
-
     this.setState({ bitStitch: canvas.toDataURL() });
   };
 
   onUpload(e, dataKey) {
     const imageFile = e[dataKey].files[0];
-    const validExtensions = ["bmp", "gif", "jpg", "png"];
+    const validExtensions = ["bmp", "gif", "jpg", "jpeg", "png"];
     const imageExtension = imageFile.name.split(".").pop();
 
     if (validExtensions.includes(imageExtension)) {
