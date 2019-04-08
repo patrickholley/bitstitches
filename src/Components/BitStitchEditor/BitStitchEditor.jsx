@@ -6,23 +6,24 @@ import "../../../assets/fonts/Modikasti-normal";
 import "../../../assets/fonts/Bringshoot-normal";
 import DMCFlossColors from "../../lib/constants/DMCFlossColors";
 
+const DMCDistanceCache = {};
+const DMCFlossColorsCount = Object.keys(DMCFlossColors).length;
+
 class BitStitchEditor extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       bitStitch: null,
-      colorCount: 8,
+      colorCount: 25,
       gridColor: [63, 63, 63, 255],
       hasGrid: true,
       image: null,
       imageLabel: "Please upload an image",
       pixelSize: 10,
-      rowCount: "108"
+      rowCount: 100
     };
   }
-
-  DMCDistanceCache = {};
 
   roundToDMCColor = (color, DMCIndexes) => {
     let closestColor = {};
@@ -87,12 +88,12 @@ class BitStitchEditor extends Component {
 
         const pixelColorString = pixelColor.join(",");
         const DMCColor =
-          this.DMCDistanceCache[pixelColorString] ||
+          DMCDistanceCache[pixelColorString] ||
           this.roundToDMCColor(pixelColor, allDMCIndexes);
         const { index } = DMCColor;
 
-        if (!this.DMCDistanceCache[pixelColorString]) {
-          this.DMCDistanceCache[pixelColorString] = DMCColor;
+        if (!DMCDistanceCache[pixelColorString]) {
+          DMCDistanceCache[pixelColorString] = DMCColor;
         }
 
         if (!DMCColors[index]) DMCColors[index] = 0;
@@ -147,7 +148,7 @@ class BitStitchEditor extends Component {
     // draw right and bottom border
     canvas.width = width + 1;
     canvas.height = height + 1;
-    context.strokeStyle = "#333";
+    context.strokeStyle = "#3f3f3f";
     context.beginPath();
     context.moveTo(0, 1080);
     context.lineTo(1920, 1080);
@@ -165,6 +166,11 @@ class BitStitchEditor extends Component {
 
     this.setState({ bitStitch: canvas.toDataURL() });
   };
+
+  isFormValid = () =>
+    this.state.rowCount !== "" &&
+    this.state.colorCount !== "" &&
+    !!this.state.image;
 
   onUpload(e, dataKey) {
     const imageFile = e[dataKey].files[0];
@@ -186,17 +192,18 @@ class BitStitchEditor extends Component {
     } else this.setState({ imageLabel: "Invalid file type" });
   }
 
-  onCountChange(e, countKey) {
-    let { value } = e.target;
+  onCountChange(value, countKey, countLimit) {
     if (value !== "") {
       if (isNaN(value)) return;
-      if (value > 250) value = 250;
+      if (value > countLimit) value = countLimit;
       else if (value <= 0) value = 1;
     }
     this.setState({ [countKey]: value });
   }
 
   render() {
+    const isFormValid = this.isFormValid();
+
     return (
       <div className="bitstitch-editor">
         <div className="bitstitch-editor__title">
@@ -219,10 +226,23 @@ class BitStitchEditor extends Component {
           className="bitstitch-editor__field"
           label="Row Count"
           onChange={e => {
-            this.onCountChange(e, "rowCount");
+            this.onCountChange(e.target.value, "rowCount", 250);
           }}
           numPad
           value={this.state.rowCount}
+        />
+        <TextInput
+          className="bitstitch-editor__field"
+          label="Color Count"
+          onChange={e => {
+            this.onCountChange(
+              e.target.value,
+              "colorCount",
+              DMCFlossColorsCount
+            );
+          }}
+          numPad
+          value={this.state.colorCount}
         />
         <span className="bitstitch-editor__file-span">
           {this.state.imageLabel}
@@ -237,7 +257,7 @@ class BitStitchEditor extends Component {
           <span className="bitstitch-editor__upload-span">Select Image</span>
         </label>
         <Button
-          disabled={this.state.rowCount === "" || !this.state.image}
+          disabled={!isFormValid}
           onClick={this.createBitStitch}
           submit
           text="Create BitStitch"

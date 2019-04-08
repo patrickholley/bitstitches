@@ -14,6 +14,7 @@ class TextInput extends Component {
   render() {
     const {
       className,
+      disabled,
       errorMessage,
       label,
       onChange,
@@ -38,6 +39,7 @@ class TextInput extends Component {
       >
         <input
           className="text-input"
+          disabled={disabled}
           onChange={onChange}
           onBlur={() => {
             if (isPristine) this.setState({ isPristine: false });

@@ -7,6 +7,13 @@
   color: var(--pink);
   display: flex;
   height: 60px;
+  position: fixed;
+  width: 100%;
+  z-index: 1;
+}
+
+.header__children {
+  padding-top: 60px;
 }
 
 .header__title {

@@ -8,7 +8,7 @@ class Header extends Component {
         <header className="header">
           <span className="header__title">BitStitches</span>
         </header>
-        {this.props.children}
+        <div className="header__children">{this.props.children}</div>
       </>
     );
   }
