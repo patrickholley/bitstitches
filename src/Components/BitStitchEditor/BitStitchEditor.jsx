@@ -25,7 +25,7 @@ class BitStitchEditor extends Component {
     };
   }
 
-  roundToDMCColor = (color, DMCIndexes) => {
+  roundToDMCColor(color, DMCIndexes) {
     let closestColor = {};
 
     for (let index of DMCIndexes) {
@@ -43,70 +43,47 @@ class BitStitchEditor extends Component {
     }
 
     return DMCFlossColors[closestColor.index];
-  };
+  }
 
-  createBitStitch = () => {
-    const { colorCount, image, gridColor, pixelSize, rowCount } = this.state;
+  drawBitStitchBorder(canvas, context) {
+    canvas.width = canvas.width + 1;
+    canvas.height = canvas.height + 1;
+    context.strokeStyle = "#3f3f3f";
+    context.beginPath();
+    context.moveTo(0, 1080);
+    context.lineTo(1920, 1080);
+    context.lineTo(1920, 0);
+    context.stroke();
+  }
 
-    // create canvas for base image
+  drawBitStitchImage(canvas, context, buffer) {
+    const bufferData = context.createImageData(
+      canvas.width - 1,
+      canvas.height - 1
+    );
+    bufferData.data.set(buffer);
+    context.putImageData(bufferData, 0, 0);
+    const bufferImageSrc = canvas.toDataURL();
+    const bufferImage = new Image();
+    bufferImage.src = bufferImageSrc;
+    context.drawImage(bufferImage, 0, 0);
+  }
+
+  getBitStitchBuffer(
+    { width },
+    imageData,
+    columnCount,
+    topDMCDistanceCache,
+    topDMCIndexes
+  ) {
+    const { gridColor, image, pixelSize, rowCount } = this.state;
     const imageWidth = image.width;
     const imageHeight = image.height;
-    const imageCanvas = document.createElement("canvas");
-    const imageContext = imageCanvas.getContext("2d");
-    imageCanvas.width = imageWidth;
-    imageCanvas.height = imageHeight;
-    imageContext.drawImage(image, 0, 0);
-    const imageData = imageContext.getImageData(0, 0, imageWidth, imageHeight)
-      .data;
-
-    // create canvas for bitStitch
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    const columnCount = Math.floor((rowCount * imageWidth) / imageHeight);
-    canvas.width = columnCount * pixelSize;
-    canvas.height = rowCount * pixelSize;
-    const { width, height } = canvas;
 
     const buffer = new Uint8ClampedArray(
       rowCount * columnCount * 4 * pixelSize * pixelSize
     );
 
-    const DMCColors = {};
-    const allDMCIndexes = Object.keys(DMCFlossColors);
-
-    for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
-      const imageRowNumber = Math.floor((imageHeight * rowNumber) / rowCount);
-
-      for (let columnNumber = 0; columnNumber < columnCount; columnNumber++) {
-        const imageColumnNumber = Math.floor(
-          (imageWidth * columnNumber) / columnCount
-        );
-        const pixelIndex =
-          (imageRowNumber * imageWidth + imageColumnNumber) * 4;
-
-        const pixelColor = imageData.slice(pixelIndex, pixelIndex + 4);
-
-        const pixelColorString = pixelColor.join(",");
-        const DMCColor =
-          DMCDistanceCache[pixelColorString] ||
-          this.roundToDMCColor(pixelColor, allDMCIndexes);
-        const { index } = DMCColor;
-
-        if (!DMCDistanceCache[pixelColorString]) {
-          DMCDistanceCache[pixelColorString] = DMCColor;
-        }
-
-        if (!DMCColors[index]) DMCColors[index] = 0;
-        DMCColors[index]++;
-      }
-    }
-
-    const topDMCIndexes = Object.keys(DMCColors)
-      .sort((a, b) => DMCColors[b] - DMCColors[a])
-      .slice(0, colorCount);
-    const topDMCDistanceCache = {};
-
-    // fill pixels of bitStitch with correct color
     for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
       const imageRowNumber = Math.floor((imageHeight * rowNumber) / rowCount);
       const y = rowNumber * pixelSize;
@@ -145,24 +122,94 @@ class BitStitchEditor extends Component {
       }
     }
 
-    // draw right and bottom border
-    canvas.width = width + 1;
-    canvas.height = height + 1;
-    context.strokeStyle = "#3f3f3f";
-    context.beginPath();
-    context.moveTo(0, 1080);
-    context.lineTo(1920, 1080);
-    context.lineTo(1920, 0);
-    context.stroke();
+    return buffer;
+  }
+
+  getBitStitchCanvas(columnCount) {
+    const { pixelSize, rowCount } = this.state;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = columnCount * pixelSize;
+    canvas.height = rowCount * pixelSize;
+
+    return canvas;
+  }
+
+  getStateImageData() {
+    const { image } = this.state;
+    const { width, height } = image;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0);
+    return context.getImageData(0, 0, width, height).data;
+  }
+
+  getTopDMCIndexes(imageData, columnCount) {
+    const { colorCount, image, rowCount } = this.state;
+    const { width, height } = image;
+
+    const DMCColors = {};
+    const allDMCIndexes = Object.keys(DMCFlossColors);
+
+    for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
+      const imageRowNumber = Math.floor((height * rowNumber) / rowCount);
+
+      for (let columnNumber = 0; columnNumber < columnCount; columnNumber++) {
+        const imageColumnNumber = Math.floor(
+          (width * columnNumber) / columnCount
+        );
+        const pixelIndex = (imageRowNumber * width + imageColumnNumber) * 4;
+
+        const pixelColor = imageData.slice(pixelIndex, pixelIndex + 4);
+
+        const pixelColorString = pixelColor.join(",");
+        const DMCColor =
+          DMCDistanceCache[pixelColorString] ||
+          this.roundToDMCColor(pixelColor, allDMCIndexes);
+        const { index } = DMCColor;
+
+        if (!DMCDistanceCache[pixelColorString]) {
+          DMCDistanceCache[pixelColorString] = DMCColor;
+        }
+
+        if (!DMCColors[index]) DMCColors[index] = 0;
+        DMCColors[index]++;
+      }
+    }
+
+    return Object.keys(DMCColors)
+      .sort((a, b) => DMCColors[b] - DMCColors[a])
+      .slice(0, colorCount);
+  }
+
+  createBitStitch = () => {
+    const { image, rowCount } = this.state;
+
+    const imageData = this.getStateImageData();
+
+    const columnCount = Math.floor((rowCount * image.width) / image.height);
+    const canvas = this.getBitStitchCanvas(columnCount);
+    const context = canvas.getContext("2d");
+    const { width, height } = canvas;
+
+    const topDMCIndexes = this.getTopDMCIndexes(imageData, columnCount);
+    const topDMCDistanceCache = {};
+    const buffer = this.getBitStitchBuffer(
+      canvas,
+      imageData,
+      columnCount,
+      topDMCDistanceCache,
+      topDMCIndexes
+    );
+
+    this.drawBitStitchBorder(canvas, context);
 
     // create image from bitStitch canvas and redraw it to canvas
-    const bufferData = context.createImageData(width, height);
-    bufferData.data.set(buffer);
-    context.putImageData(bufferData, 0, 0);
-    const bufferImageSrc = canvas.toDataURL();
-    const bufferImage = new Image();
-    bufferImage.src = bufferImageSrc;
-    context.drawImage(bufferImage, 0, 0);
+    this.drawBitStitchImage(canvas, context, buffer);
 
     this.setState({ bitStitch: canvas.toDataURL() });
   };
