@@ -1,3 +1,1 @@
-import BitStitchCreater from './BitStitchEditor';
-
-export default BitStitchCreater;
+export { default } from "./BitStitchEditor";
