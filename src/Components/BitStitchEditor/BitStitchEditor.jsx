@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import TextInput from "../../lib/components/TextInput";
 import Button from "../../lib/components/Button";
 import "./BitStitchEditor.scss";
@@ -11,31 +11,29 @@ const AllDMCDistanceCache = {};
 const AllDMCColorKeys = Object.keys(DMCFlossColors);
 const AllDMCFlossColorsCount = AllDMCColorKeys.length;
 
-class BitStitchEditor extends Component {
-  constructor(props) {
-    super(props);
-
-    const colorCount = 25;
-
-    this.state = {
-      activeColors: AllDMCColorKeys.slice(0, colorCount),
-      bitStitch: null,
+function BitStitchEditor() {
+  const [bitStitch, setBitStitch] = useState(null);
+  const [colorCount, setColorCount] = useState(25);
+  const [colors, setColors] = useState({
+    active: AllDMCColorKeys.slice(0, colorCount),
+    inactive: AllDMCColorKeys.slice(
       colorCount,
-      gridColor: [63, 63, 63, 255],
-      hasGrid: true,
-      image: null,
-      imageLabel: "Please upload an image",
-      inactiveColors: AllDMCColorKeys.slice(
-        colorCount,
-        AllDMCColorKeys.length - colorCount
-      ),
-      isModalOpen: true,
-      pixelSize: 10,
-      rowCount: 100
-    };
-  }
+      AllDMCColorKeys.length - colorCount
+    )
+  });
+  const [gridColor, setGridColor] = useState([63, 63, 63, 255]);
+  const [hasGrid, setHasGrid] = useState(true);
+  const [image, setImage] = useState(null);
+  const [imageLabel, setImageLabel] = useState("Please upload an image");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pixelSize, setPixelSize] = useState(10);
+  const [rowCount, setRowCount] = useState(100);
 
-  drawBitStitchBorder(canvas, context) {
+  const getIsFormValid = () => rowCount > 0 && colorCount > 0 && !!image;
+
+  const isFormValid = getIsFormValid();
+
+  function drawBitStitchBorder(canvas, context) {
     canvas.width = canvas.width + 1;
     canvas.height = canvas.height + 1;
     context.strokeStyle = "#3f3f3f";
@@ -46,7 +44,7 @@ class BitStitchEditor extends Component {
     context.stroke();
   }
 
-  drawBitStitchImage(canvas, context, buffer) {
+  function drawBitStitchImage(canvas, context, buffer) {
     const bufferData = context.createImageData(
       canvas.width - 1,
       canvas.height - 1
@@ -59,23 +57,19 @@ class BitStitchEditor extends Component {
     context.drawImage(bufferImage, 0, 0);
   }
 
-  createBitStitch = () => {
-    const { image, rowCount } = this.state;
-
+  function createBitStitch() {
     const columnCount = Math.floor((rowCount * image.width) / image.height);
-    const imageData = this.getStateImageData();
-    const canvas = this.getBitStitchCanvas(columnCount);
+    const imageData = getStateImageData();
+    const canvas = getBitStitchCanvas(columnCount);
     const context = canvas.getContext("2d");
-    const buffer = this.manipulatePixels(canvas, imageData, columnCount);
+    const buffer = manipulatePixels(canvas, imageData, columnCount);
 
-    this.drawBitStitchBorder(canvas, context);
-    this.drawBitStitchImage(canvas, context, buffer);
-    this.setState({ bitStitch: canvas.toDataURL() });
-  };
+    drawBitStitchBorder(canvas, context);
+    drawBitStitchImage(canvas, context, buffer);
+    setBitStitch(canvas.toDataURL());
+  }
 
-  getBitStitchCanvas(columnCount) {
-    const { pixelSize, rowCount } = this.state;
-
+  function getBitStitchCanvas(columnCount) {
     const canvas = document.createElement("canvas");
     canvas.width = columnCount * pixelSize;
     canvas.height = rowCount * pixelSize;
@@ -83,8 +77,7 @@ class BitStitchEditor extends Component {
     return canvas;
   }
 
-  getStateImageData() {
-    const { image } = this.state;
+  function getStateImageData() {
     const { width, height } = image;
 
     const canvas = document.createElement("canvas");
@@ -97,8 +90,12 @@ class BitStitchEditor extends Component {
     return context.getImageData(0, 0, width, height).data;
   }
 
-  manipulatePixels(canvas, imageData, columnCount, autoSelectColors = false) {
-    const { colorCount, image, pixelSize, rowCount } = this.state;
+  function manipulatePixels(
+    canvas,
+    imageData,
+    columnCount,
+    autoSelectColors = false
+  ) {
     const { width } = canvas;
     const imageWidth = image.width;
     const imageHeight = image.height;
@@ -107,7 +104,7 @@ class BitStitchEditor extends Component {
     const DMCDistanceCache = autoSelectColors ? AllDMCDistanceCache : {};
     const DMCIndexes = autoSelectColors
       ? Object.keys(DMCFlossColors)
-      : this.manipulatePixels(canvas, imageData, columnCount, true);
+      : manipulatePixels(canvas, imageData, columnCount, true);
 
     const buffer = new Uint8ClampedArray(
       rowCount * columnCount * 4 * pixelSize * pixelSize
@@ -128,7 +125,7 @@ class BitStitchEditor extends Component {
         const pixelColorString = pixelColor.join(",");
         const DMCColor =
           DMCDistanceCache[pixelColorString] ||
-          this.roundToDMCColor(pixelColor, DMCIndexes);
+          roundToDMCColor(pixelColor, DMCIndexes);
         const { index } = DMCColor;
 
         if (!DMCDistanceCache[pixelColorString]) {
@@ -136,7 +133,7 @@ class BitStitchEditor extends Component {
         }
 
         if (!autoSelectColors) {
-          this.setBufferIndex(buffer, DMCColor, width, x, y);
+          setBufferIndex(buffer, DMCColor, width, x, y);
         } else {
           if (!DMCColorCounts[index]) DMCColorCounts[index] = 0;
           DMCColorCounts[index]++;
@@ -151,7 +148,7 @@ class BitStitchEditor extends Component {
       : buffer;
   }
 
-  roundToDMCColor(color, DMCIndexes) {
+  function roundToDMCColor(color, DMCIndexes) {
     let closestColor = {};
 
     for (let index of DMCIndexes) {
@@ -171,9 +168,7 @@ class BitStitchEditor extends Component {
     return DMCFlossColors[closestColor.index];
   }
 
-  setBufferIndex(buffer, DMCColor, width, x, y) {
-    const { gridColor, pixelSize } = this.state;
-
+  function setBufferIndex(buffer, DMCColor, width, x, y) {
     for (let pixelRow = 0; pixelRow < pixelSize; pixelRow++) {
       for (let pixelColumn = 0; pixelColumn < pixelSize; pixelColumn++) {
         const bufferIndex = (width * (y + pixelRow) + x + pixelColumn) * 4;
@@ -189,12 +184,7 @@ class BitStitchEditor extends Component {
     }
   }
 
-  isFormValid = () =>
-    this.state.rowCount !== "" &&
-    this.state.colorCount !== "" &&
-    !!this.state.image;
-
-  onUpload(e, dataKey) {
+  function onUpload(e, dataKey) {
     const imageFile = e[dataKey].files[0];
     const validExtensions = ["bmp", "gif", "jpg", "jpeg", "png"];
     const imageExtension = imageFile.name.split(".").pop();
@@ -205,54 +195,45 @@ class BitStitchEditor extends Component {
       reader.onload = file => {
         const image = new Image();
         image.onload = () => {
-          this.setState({ image, imageLabel: imageFile.name });
+          setImage(image);
+          setImageLabel(imageFile.name);
         };
         image.src = file.target.result;
       };
 
       reader.readAsDataURL(imageFile);
-    } else this.setState({ imageLabel: "Invalid file type" });
+    } else setImageLabel("Invalid file type");
   }
 
-  onCountChange(value, countKey, countLimit) {
-    if (value !== "") {
-      if (isNaN(value)) return;
-      if (value > countLimit) value = countLimit;
-      else if (value <= 0) value = 1;
-    }
-    this.setState({ [countKey]: value });
+  function onCountChange(value, setCount, countLimit) {
+    value = parseInt(value, 10);
+    if (Number.isNaN(value) || value < 0) value = 0;
+    else if (value > countLimit) value = countLimit;
+    setCount(value);
   }
 
-  renderColorList = collection => (
+  const renderColorList = collection => (
     <div className="bitstitch-editor__color-list-wrapper">
       <ul className="bitstitch-editor__color-list">
-        {this.state[collection].map(i => {
+        {colors[collection].map(i => {
           const { red, green, blue, index, name } = DMCFlossColors[i];
           return (
             <li
               key={i}
               className="bitstitch-editor__color-item"
               onClick={() => {
-                this.setState(prevState => {
-                  const inContainer = [];
-                  const outContainer = [];
-                  for (let key in DMCFlossColors) {
-                    if (
-                      key !== i &&
-                      prevState[collection].indexOf(key) !== -1
-                    ) {
-                      inContainer.push(key);
-                    } else outContainer.push(key);
-                  }
-                  return {
-                    activeColors:
-                      collection === "activeColors"
-                        ? inContainer
-                        : outContainer,
-                    inactiveColors:
-                      collection === "activeColors" ? outContainer : inContainer
-                  };
-                });
+                const inContainer = [];
+                const outContainer = [];
+                for (let key in DMCFlossColors) {
+                  if (key !== i && colors[collection].indexOf(key) !== -1) {
+                    inContainer.push(key);
+                  } else outContainer.push(key);
+                }
+                setColors(
+                  collection === "active"
+                    ? { active: inContainer, inactive: outContainer }
+                    : { active: outContainer, inactive: inContainer }
+                );
               }}
             >
               <div
@@ -267,87 +248,75 @@ class BitStitchEditor extends Component {
     </div>
   );
 
-  render() {
-    const { isModalOpen } = this.state;
-
-    const isFormValid = this.isFormValid();
-
-    return (
-      <div className="bitstitch-editor">
-        {isModalOpen && (
-          <Modal className="bitstitch-editor__modal">
-            {this.renderColorList("activeColors")}
-            {this.renderColorList("inactiveColors")}
-          </Modal>
-        )}
-        <div className="bitstitch-editor__title">
-          <span className="bitstitch-editor__title-span">BitStitches</span>
-          <svg
-            width="240"
-            height="12"
-            className="bitstitch-editor__title-underline"
-            fill="transparent"
-            strokeWidth="4"
-            stroke="rgb(96, 149, 139)"
-          >
-            <path d="M0 7 C 120 0 180 0 240 5" />
-          </svg>
-        </div>
-        <h3 className="bitstitch-editor__subtitle">
-          Cross-stitch pattern and pixel art creation software
-        </h3>
-        <TextInput
-          className="bitstitch-editor__field"
-          label="Row Count"
-          onChange={e => {
-            this.onCountChange(e.target.value, "rowCount", 250);
-          }}
-          numPad
-          value={this.state.rowCount}
-        />
-        <TextInput
-          className="bitstitch-editor__field"
-          label="Color Count"
-          onChange={e => {
-            this.onCountChange(
-              e.target.value,
-              "colorCount",
-              AllDMCFlossColorsCount
-            );
-          }}
-          numPad
-          value={this.state.colorCount}
-        />
-        <span className="bitstitch-editor__file-span">
-          {this.state.imageLabel}
-        </span>
-        <label className="bitstitch-editor__upload-label">
-          <input
-            type="file"
-            onChange={e => {
-              this.onUpload(e, "target");
-            }}
-          />
-          <span className="bitstitch-editor__upload-span">Select Image</span>
-        </label>
-        <Button
-          disabled={!isFormValid}
-          onClick={this.createBitStitch}
-          submit
-          text="Create BitStitch"
-        />
-        <div className="bitstitch-editor__preview-wrapper">
-          {this.state.bitStitch && (
-            <img
-              alt="uploaded cross-stitch pattern"
-              className="bitstitch-editor__preview"
-              src={this.state.bitStitch}
-            />
-          )}
-        </div>
+  return (
+    <div className="bitstitch-editor">
+      {isModalOpen && (
+        <Modal className="bitstitch-editor__modal">
+          {renderColorList("active")}
+          {renderColorList("inactive")}
+        </Modal>
+      )}
+      <div className="bitstitch-editor__title">
+        <span className="bitstitch-editor__title-span">BitStitches</span>
+        <svg
+          width="240"
+          height="12"
+          className="bitstitch-editor__title-underline"
+          fill="transparent"
+          strokeWidth="4"
+          stroke="rgb(96, 149, 139)"
+        >
+          <path d="M0 7 C 120 0 180 0 240 5" />
+        </svg>
       </div>
-    );
-  }
+      <h3 className="bitstitch-editor__subtitle">
+        Cross-stitch pattern and pixel art creation software
+      </h3>
+      <TextInput
+        className="bitstitch-editor__field"
+        label="Row Count"
+        onChange={e => {
+          onCountChange(e.target.value, setRowCount, 250);
+        }}
+        numPad
+        value={rowCount}
+      />
+      <TextInput
+        className="bitstitch-editor__field"
+        label="Color Count"
+        onChange={e => {
+          onCountChange(e.target.value, setColorCount, AllDMCFlossColorsCount);
+        }}
+        numPad
+        value={colorCount}
+      />
+      <span className="bitstitch-editor__file-span">{imageLabel}</span>
+      <label className="bitstitch-editor__upload-label">
+        <input
+          type="file"
+          onChange={e => {
+            onUpload(e, "target");
+          }}
+        />
+        <span className="bitstitch-editor__upload-span">Select Image</span>
+      </label>
+      <Button
+        disabled={!isFormValid}
+        onClick={createBitStitch}
+        submit
+        text="Create BitStitch"
+      />
+      <div className="bitstitch-editor__preview-wrapper">
+        {bitStitch && (
+          <img
+            alt="uploaded cross-stitch pattern"
+            className="bitstitch-editor__preview"
+            src={bitStitch}
+          />
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default BitStitchEditor;
