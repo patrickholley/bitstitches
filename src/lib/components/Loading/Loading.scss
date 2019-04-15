@@ -1,0 +1,43 @@
+.loading {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.loading__row {
+  display: flex;
+
+  @for $i from 1 through 9 {
+    &:nth-child(#{$i}) {
+      @for $j from 1 through 11 {
+        & > .loading__block.visible:nth-child(#{$j}) {
+          animation-delay: #{(((($i - 1) * 9) + ($j - 1)) * 0.1)}s;
+        }
+      }
+    }
+  }
+}
+
+.loading__block {
+  border-radius: 1px;
+  height: 8px;
+  width: 8px;
+
+  &.visible {
+    animation: loading__block 2.5s infinite;
+    background-color: var(--green);
+  }
+}
+
+@keyframes loading__block {
+  0% {
+    background-color: var(--green);
+  }
+  5% {
+    background-color: var(--burgundy_dim);
+  }
+  10% {
+    background-color: var(--green);
+  }
+}
