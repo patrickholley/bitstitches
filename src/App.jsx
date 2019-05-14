@@ -12,8 +12,7 @@ class App extends Component {
       <ErrorBoundary>
         <BrowserRouter>
           <Header>
-            <Suspense fallback={<div>Loading</div>}>
-              <Loading />
+            <Suspense fallback={<Loading />}>
               <Switch>
                 <Route exact path="/" render={() => <BitStitchEditor />} />
                 <Redirect to="/" />

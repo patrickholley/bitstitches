@@ -25,7 +25,7 @@
   margin: 2px 0;
 }
 
-.bitstitch-editor__color-list {
+.bitstitch-editor__color-menu {
   height: 200px;
   list-style: none;
   margin: 0;
@@ -34,7 +34,7 @@
   width: 100%;
 }
 
-.bitstitch-editor__color-list-wrapper {
+.bitstitch-editor__color-menu-wrapper {
   width: 50%;
 }
 
@@ -108,9 +108,6 @@
   &:hover {
     background-color: var(--green_dim);
   }
-}
-
-.bitstitch-editor__upload-span {
 }
 
 .bitstitch-editor__pdf {

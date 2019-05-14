@@ -6,6 +6,7 @@ import "../../../assets/fonts/Modikasti-normal";
 import "../../../assets/fonts/Bringshoot-normal";
 import DMCFlossColors from "../../lib/constants/DMCFlossColors";
 import Modal from "../../lib/components/Modal";
+import Checkbox from "../../lib/components/Checkbox";
 
 const AllDMCDistanceCache = {};
 const AllDMCColorKeys = Object.keys(DMCFlossColors);
@@ -13,6 +14,7 @@ const AllDMCFlossColorsCount = AllDMCColorKeys.length;
 
 function BitStitchEditor() {
   const [bitStitch, setBitStitch] = useState(null);
+  const [isColorMenuEnabled, setIsColorMenuEnabled] = useState(false);
   const [colorCount, setColorCount] = useState(25);
   const [colors, setColors] = useState({
     active: AllDMCColorKeys.slice(0, colorCount),
@@ -25,7 +27,7 @@ function BitStitchEditor() {
   const [hasGrid, setHasGrid] = useState(true);
   const [image, setImage] = useState(null);
   const [imageLabel, setImageLabel] = useState("Please upload an image");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
   const [pixelSize, setPixelSize] = useState(10);
   const [rowCount, setRowCount] = useState(100);
 
@@ -213,8 +215,8 @@ function BitStitchEditor() {
   }
 
   const renderColorList = collection => (
-    <div className="bitstitch-editor__color-list-wrapper">
-      <ul className="bitstitch-editor__color-list">
+    <div className="bitstitch-editor__color-menu-wrapper">
+      <ul className="bitstitch-editor__color-menu">
         {colors[collection].map(i => {
           const { red, green, blue, index, name } = DMCFlossColors[i];
           return (
@@ -250,7 +252,7 @@ function BitStitchEditor() {
 
   return (
     <div className="bitstitch-editor">
-      {isModalOpen && (
+      {isColorMenuOpen && (
         <Modal className="bitstitch-editor__modal">
           {renderColorList("active")}
           {renderColorList("inactive")}
@@ -290,6 +292,21 @@ function BitStitchEditor() {
         numPad
         value={colorCount}
       />
+      <div className="bitstitch-editor__color-menu-options">
+        <Checkbox
+          checked={isColorMenuOpen}
+          onClick={() => {
+            setIsColorMenuEnabled(!isColorMenuEnabled);
+          }}
+        />
+        <Button
+          disabled={!isColorMenuEnabled}
+          onClick={() => {
+            setIsColorMenuOpen(!isColorMenuOpen);
+          }}
+          text="Choose Colors"
+        />
+      </div>
       <span className="bitstitch-editor__file-span">{imageLabel}</span>
       <label className="bitstitch-editor__upload-label">
         <input

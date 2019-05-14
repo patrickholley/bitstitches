@@ -1,10 +1,12 @@
 :root {
   --burgundy: rgb(90, 52, 57);
-  --burgundy_dim: rgba(90, 52, 57, 0.8);
+  --burgundy_dim: rgba(90, 52, 57, 0.9);
+  --burgundy_disabled: rgba(90, 52, 57, 0.5);
   --black: #222;
   --error: #c00;
   --green-light: #8eb19c;
-  --green_dim: rgba(96, 149, 139, 0.8);
+  --green_dim: rgba(96, 149, 139, 0.9);
+  --green_disabled: rgba(96, 149, 139, 0.5);
   --green: rgb(96, 149, 139);
   --grey: #444;
   --orange: #a75037;

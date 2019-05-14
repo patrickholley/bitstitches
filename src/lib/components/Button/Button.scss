@@ -9,25 +9,31 @@
   font-size: 18px;
   font-weight: bold;
   height: 40px;
-  padding: 0;
+  padding: 0 18px;
   text-align: center;
   text-transform: uppercase;
 
   &.primary {
     background-color: var(--burgundy);
 
-    &:hover,
-    &:disabled {
+    &:hover {
       background-color: var(--burgundy_dim);
+    }
+
+    &:disabled {
+      background-color: var(--burgundy_disabled);
     }
   }
 
   &.secondary {
     background-color: var(--green);
 
-    &:hover,
-    &:disabled {
+    &:hover {
       background-color: var(--green_dim);
+    }
+
+    &:disabled {
+      background-color: var(--green_disabled);
     }
   }
 
