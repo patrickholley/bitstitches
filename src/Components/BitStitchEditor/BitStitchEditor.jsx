@@ -294,7 +294,7 @@ function BitStitchEditor() {
       />
       <div className="bitstitch-editor__color-menu-options">
         <Checkbox
-          checked={isColorMenuOpen}
+          checked={!isColorMenuEnabled}
           onClick={() => {
             setIsColorMenuEnabled(!isColorMenuEnabled);
           }}
