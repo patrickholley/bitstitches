@@ -6,7 +6,7 @@ import "../../../assets/fonts/Modikasti-normal";
 import "../../../assets/fonts/Bringshoot-normal";
 import DMCFlossColors from "../../lib/constants/DMCFlossColors";
 import Modal from "../../lib/components/Modal";
-import Checkbox from "../../lib/components/Checkbox";
+import ToggleSwitch from "../../lib/components/ToggleSwitch/ToggleSwitch";
 
 const AllDMCDistanceCache = {};
 const AllDMCColorKeys = Object.keys(DMCFlossColors);
@@ -292,21 +292,24 @@ function BitStitchEditor() {
         numPad
         value={colorCount}
       />
-      <div className="bitstitch-editor__color-menu-options">
-        <Checkbox
+      <div className="bitstitch-editor__menu-enable">
+        <span className="bitstitch-editor__enable-label">
+          Choose colors for me:
+        </span>
+        <ToggleSwitch
           checked={!isColorMenuEnabled}
           onClick={() => {
             setIsColorMenuEnabled(!isColorMenuEnabled);
           }}
         />
-        <Button
-          disabled={!isColorMenuEnabled}
-          onClick={() => {
-            setIsColorMenuOpen(!isColorMenuOpen);
-          }}
-          text="Choose Colors"
-        />
       </div>
+      <Button
+        disabled={!isColorMenuEnabled}
+        onClick={() => {
+          setIsColorMenuOpen(!isColorMenuOpen);
+        }}
+        text="Choose Colors"
+      />
       <span className="bitstitch-editor__file-span">{imageLabel}</span>
       <label className="bitstitch-editor__upload-label">
         <input

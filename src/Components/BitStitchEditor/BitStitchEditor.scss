@@ -34,6 +34,17 @@
   width: 100%;
 }
 
+.bitstitch-editor__menu-enable {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  height: 40px;
+}
+
+.bitstitch-editor__enable-label {
+  margin-right: 5px;
+}
+
 .bitstitch-editor__color-menu-wrapper {
   width: 50%;
 }
