@@ -252,12 +252,16 @@ function BitStitchEditor() {
 
   return (
     <div className="bitstitch-editor">
-      {isColorMenuOpen && (
-        <Modal className="bitstitch-editor__modal">
-          {renderColorList("active")}
-          {renderColorList("inactive")}
-        </Modal>
-      )}
+      <Modal
+        className="bitstitch-editor__color-modal"
+        isModalOpen={isColorMenuOpen}
+        onClose={() => {
+          setIsColorMenuOpen(false);
+        }}
+      >
+        {renderColorList("active")}
+        {renderColorList("inactive")}
+      </Modal>
       <div className="bitstitch-editor__title">
         <span className="bitstitch-editor__title-span">BitStitches</span>
         <svg

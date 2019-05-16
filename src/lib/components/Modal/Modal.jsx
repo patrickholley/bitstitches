@@ -1,20 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Modal.scss";
 
-export default ({ children, className }) => (
-  <div
-    className="modal__wrapper"
-    onClick={() => {
-      console.log("!");
-    }}
-  >
-    <div
-      className={`modal ${className}`}
-      onClick={e => {
-        e.stopPropagation();
-      }}
-    >
-      {children}
-    </div>
-  </div>
+export default ({ children, className, isModalOpen, onClose }) => (
+  <>
+    {isModalOpen && (
+      <div className="modal__wrapper" onClick={onClose}>
+        <div
+          className={`modal ${className}`}
+          onClick={e => {
+            e.stopPropagation();
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    )}
+  </>
 );

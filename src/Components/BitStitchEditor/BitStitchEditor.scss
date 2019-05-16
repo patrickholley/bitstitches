@@ -25,6 +25,14 @@
   margin: 2px 0;
 }
 
+.bitstitch-editor__color-modal {
+  display: flex;
+  justify-content: space-between;
+  max-height: 250px;
+  text-align: left;
+  width: 200px;
+}
+
 .bitstitch-editor__color-menu {
   height: 200px;
   list-style: none;
@@ -32,6 +40,12 @@
   overflow: auto;
   padding-left: 0;
   width: 100%;
+}
+
+.bitstitch-editor__color-menu-wrapper {
+  border: 2px solid var(--green-light);
+  border-radius: 4px;
+  width: calc(45% - 4px);
 }
 
 .bitstitch-editor__menu-enable {
@@ -45,10 +59,6 @@
   margin-right: 5px;
 }
 
-.bitstitch-editor__color-menu-wrapper {
-  width: 50%;
-}
-
 .bitstitch-editor__field {
   width: 100%;
 }
@@ -58,14 +68,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.bitstitch-editor__modal {
-  display: flex;
-  justify-content: space-between;
-  max-height: 250px;
-  text-align: left;
-  width: 200px;
 }
 
 .bitstitch-editor__preview {
