@@ -1,0 +1,31 @@
+.toggle-switch {
+  background-color: var(--grey-light);
+  border: none;
+  border-radius: 7.5px;
+  cursor: pointer;
+  height: 15px;
+  padding: 0;
+  position: relative;
+  width: 45px;
+
+  &.checked {
+    background-color: var(--green-light);
+  }
+}
+
+.toggle-switch__button {
+  background-color: var(--grey);
+  border: none;
+  border-radius: 50%;
+  height: 25px;
+  left: 0;
+  position: absolute;
+  top: -5px;
+  transition: left 0.25s;
+  width: 25px;
+
+  &.checked {
+    background-color: var(--green);
+    left: calc(100% - 25px);
+  }
+}

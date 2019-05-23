@@ -7,6 +7,7 @@ import "../../../assets/fonts/Bringshoot-normal";
 import DMCFlossColors from "../../lib/constants/DMCFlossColors";
 import Modal from "../../lib/components/Modal";
 import ToggleSwitch from "../../lib/components/ToggleSwitch/ToggleSwitch";
+import ColorMenu from "./ColorMenu/ColorMenu";
 
 const AllDMCDistanceCache = {};
 const AllDMCColorKeys = Object.keys(DMCFlossColors);
@@ -27,7 +28,7 @@ function BitStitchEditor() {
   const [hasGrid, setHasGrid] = useState(true);
   const [image, setImage] = useState(null);
   const [imageLabel, setImageLabel] = useState("Please upload an image");
-  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
+  const [isColorMenuOpen, setIsColorMenuOpen] = useState(true);
   const [pixelSize, setPixelSize] = useState(10);
   const [rowCount, setRowCount] = useState(100);
 
@@ -214,42 +215,6 @@ function BitStitchEditor() {
     setCount(value);
   }
 
-  const renderColorList = collection => (
-    <div className="bitstitch-editor__color-menu-wrapper">
-      <ul className="bitstitch-editor__color-menu">
-        {colors[collection].map(i => {
-          const { red, green, blue, index, name } = DMCFlossColors[i];
-          return (
-            <li
-              key={i}
-              className="bitstitch-editor__color-item"
-              onClick={() => {
-                const inContainer = [];
-                const outContainer = [];
-                for (let key in DMCFlossColors) {
-                  if (key !== i && colors[collection].indexOf(key) !== -1) {
-                    inContainer.push(key);
-                  } else outContainer.push(key);
-                }
-                setColors(
-                  collection === "active"
-                    ? { active: inContainer, inactive: outContainer }
-                    : { active: outContainer, inactive: inContainer }
-                );
-              }}
-            >
-              <div
-                className="bitstitch-editor__color-circle"
-                style={{ backgroundColor: `rgb(${red}, ${green}, ${blue})` }}
-              />
-              <span>{index}</span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-
   return (
     <div className="bitstitch-editor">
       <Modal
@@ -259,8 +224,13 @@ function BitStitchEditor() {
           setIsColorMenuOpen(false);
         }}
       >
-        {renderColorList("active")}
-        {renderColorList("inactive")}
+        <ColorMenu
+          colors={colors}
+          setColors={setColors}
+          onClose={() => {
+            setIsColorMenuOpen(false);
+          }}
+        />
       </Modal>
       <div className="bitstitch-editor__title">
         <span className="bitstitch-editor__title-span">BitStitches</span>
