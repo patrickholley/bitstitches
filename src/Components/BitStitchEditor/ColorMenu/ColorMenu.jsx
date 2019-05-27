@@ -43,7 +43,9 @@ const ColorMenu = ({ colors, onClose, setColors }) => {
 
   return (
     <div className="color-menu">
-      <span className="color-menu__prompt">Select a color to swap columns</span>
+      <span className="color-menu__prompt">
+        Choose a color to move it to the other column
+      </span>
       <div className="color-menu__lists">
         {generateColorList("active")}
         {generateColorList("inactive")}

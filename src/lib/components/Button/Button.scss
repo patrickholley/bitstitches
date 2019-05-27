@@ -13,6 +13,10 @@
   text-align: center;
   text-transform: uppercase;
 
+  &:disabled {
+    cursor: default;
+  }
+
   &.primary {
     background-color: var(--burgundy);
 
