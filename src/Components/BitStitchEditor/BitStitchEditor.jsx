@@ -1,27 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import TextInput from "../../lib/components/TextInput";
 import Button from "../../lib/components/Button";
 import "./BitStitchEditor.scss";
-import DMCFlossColors from "../../lib/constants/DMCFlossColors";
 import Modal from "../../lib/components/Modal";
-import ToggleSwitch from "../../lib/components/ToggleSwitch/ToggleSwitch";
+import ToggleSwitch from "../../lib/components/ToggleSwitch";
+import Loading from "../../lib/components/Loading";
 import ColorMenu from "./ColorMenu";
-
-const AllDMCDistanceCache = {};
-const AllDMCColorKeys = Object.keys(DMCFlossColors);
-const AllDMCFlossColorsCount = AllDMCColorKeys.length;
+import reducer, { initialState } from "../../reducer";
+import {
+  GET_COLORS_REQUEST,
+  GENERATE_PATTERN_REQUEST
+} from "../../lib/constants/actions";
+import { getColors } from "../../api/colors";
+import { generatePattern } from "../../api/patterns";
+import networkStatus from "../../lib/constants/networkStatus";
 
 function BitStitchEditor() {
-  const [bitStitch, setBitStitch] = useState(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [isColorMenuEnabled, setIsColorMenuEnabled] = useState(false);
   const [colorCount, setColorCount] = useState(25);
-  const [colors, setColors] = useState({
-    active: AllDMCColorKeys.slice(0, colorCount),
-    inactive: AllDMCColorKeys.slice(
-      colorCount,
-      AllDMCColorKeys.length - colorCount
-    )
-  });
   const [gridColor, setGridColor] = useState([63, 63, 63, 255]);
   const [hasGrid, setHasGrid] = useState(true);
   const [image, setImage] = useState(null);
@@ -33,6 +30,11 @@ function BitStitchEditor() {
   const getIsFormValid = () => rowCount > 0 && colorCount > 0 && !!image;
 
   const isFormValid = getIsFormValid();
+
+  useEffect(function() {
+    dispatch({ type: GET_COLORS_REQUEST });
+    getColors(dispatch);
+  }, []);
 
   function onUpload(e, dataKey) {
     const imageFile = e[dataKey].files[0];
@@ -62,23 +64,17 @@ function BitStitchEditor() {
     setCount(value);
   }
 
-  function resizeImage() {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+  function onSubmit() {
+    dispatch({ type: GENERATE_PATTERN_REQUEST });
 
+    const canvas = document.createElement("canvas");
     canvas.height = rowCount;
     canvas.width = rowCount * (image.width / image.height);
 
+    const context = canvas.getContext("2d");
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    fetch("https://localhost:5001/api/pattern", {
-      method: "POST",
-      body: canvas.toDataURL()
-    }).then(response => {
-      response.text().then(base64String => {
-        setBitStitch(`data:image/png;base64,${base64String}`);
-      });
-    });
+    generatePattern(canvas.toDataURL(), dispatch);
   }
 
   return (
@@ -90,13 +86,13 @@ function BitStitchEditor() {
           setIsColorMenuOpen(false);
         }}
       >
-        <ColorMenu
+        {/* <ColorMenu
           colors={colors}
           setColors={setColors}
           onClose={() => {
             setIsColorMenuOpen(false);
           }}
-        />
+        /> */}
       </Modal>
       <div className="bitstitch-editor__title">
         <span className="bitstitch-editor__title-span">BitStitches</span>
@@ -114,67 +110,80 @@ function BitStitchEditor() {
       <h3 className="bitstitch-editor__subtitle">
         Cross-stitch pattern and pixel art creation software
       </h3>
-      <TextInput
-        className="bitstitch-editor__field"
-        label="Row Count"
-        onChange={e => {
-          onCountChange(e.target.value, setRowCount, 250);
-        }}
-        numPad
-        value={rowCount}
-      />
-      <TextInput
-        className="bitstitch-editor__field"
-        label="Color Count"
-        onChange={e => {
-          onCountChange(e.target.value, setColorCount, AllDMCFlossColorsCount);
-        }}
-        numPad
-        value={colorCount}
-      />
-      <div className="bitstitch-editor__menu-enable">
-        <span className="bitstitch-editor__enable-label">
-          Choose colors for me:
-        </span>
-        <ToggleSwitch
-          checked={!isColorMenuEnabled}
-          onClick={() => {
-            setIsColorMenuEnabled(!isColorMenuEnabled);
-          }}
-        />
-      </div>
-      <Button
-        disabled={!isColorMenuEnabled}
-        onClick={() => {
-          setIsColorMenuOpen(!isColorMenuOpen);
-        }}
-        text="Choose Colors"
-      />
-      <span className="bitstitch-editor__file-span">{imageLabel}</span>
-      <label className="bitstitch-editor__upload-label">
-        <input
-          type="file"
-          onChange={e => {
-            onUpload(e, "target");
-          }}
-        />
-        <span className="bitstitch-editor__upload-span">Select Image</span>
-      </label>
-      <Button
-        disabled={!isFormValid}
-        onClick={resizeImage}
-        submit
-        text="Create BitStitch"
-      />
-      <div className="bitstitch-editor__preview-wrapper">
-        {bitStitch && (
-          <img
-            alt="uploaded cross-stitch pattern"
-            className="bitstitch-editor__preview"
-            src={bitStitch}
+      {state.getColorsInProgress !== networkStatus.SUCCESS ? (
+        <Loading />
+      ) : (
+        <>
+          <TextInput
+            className="bitstitch-editor__field"
+            label="Row Count"
+            onChange={e => {
+              onCountChange(e.target.value, setRowCount, 250);
+            }}
+            numPad
+            value={rowCount}
           />
-        )}
-      </div>
+          <TextInput
+            className="bitstitch-editor__field"
+            label="Color Count"
+            onChange={e => {
+              onCountChange(
+                e.target.value,
+                setColorCount,
+                AllDMCFlossColorsCount
+              );
+            }}
+            numPad
+            value={colorCount}
+          />
+          <div className="bitstitch-editor__menu-enable">
+            <span className="bitstitch-editor__enable-label">
+              Choose colors for me:
+            </span>
+            <ToggleSwitch
+              checked={!isColorMenuEnabled}
+              onClick={() => {
+                setIsColorMenuEnabled(!isColorMenuEnabled);
+              }}
+            />
+          </div>
+          <Button
+            disabled={!isColorMenuEnabled}
+            onClick={() => {
+              setIsColorMenuOpen(!isColorMenuOpen);
+            }}
+            text="Choose Colors"
+          />
+          <span className="bitstitch-editor__file-span">{imageLabel}</span>
+          <label className="bitstitch-editor__upload-label">
+            <input
+              type="file"
+              onChange={e => {
+                onUpload(e, "target");
+              }}
+            />
+            <span className="bitstitch-editor__upload-span">Select Image</span>
+          </label>
+          <Button
+            disabled={!isFormValid}
+            onClick={onSubmit}
+            submit
+            text="Create BitStitch"
+          />
+          <div className="bitstitch-editor__preview-wrapper">
+            {state.generatePatternInProgress === networkStatus.IN_PROGRESS && (
+              <Loading />
+            )}
+            {state.generatePatternInProgress === networkStatus.SUCCESS && (
+              <img
+                alt="uploaded cross-stitch pattern"
+                className="bitstitch-editor__preview"
+                src={state.patternSource}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

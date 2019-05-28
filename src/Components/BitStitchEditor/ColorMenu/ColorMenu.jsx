@@ -1,6 +1,5 @@
-import React from "react";
+/* import React from "react";
 import Button from "../../../lib/components/Button";
-import DMCFlossColors from "../../../lib/constants/DMCFlossColors";
 import "./ColorMenu.scss";
 
 const ColorMenu = ({ colors, onClose, setColors }) => {
@@ -60,3 +59,4 @@ const ColorMenu = ({ colors, onClose, setColors }) => {
 };
 
 export default ColorMenu;
+ */
