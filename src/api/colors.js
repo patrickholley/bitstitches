@@ -9,8 +9,8 @@ export function getColors(dispatch) {
     fetch(`${apiRoute}/colors`, {
       method: "GET"
     }).then(function(response) {
-      response.json().then(function(dmcColors) {
-        dispatch({ type: GET_COLORS_RESPONSE, payload: { dmcColors } });
+      response.json().then(function(allColors) {
+        dispatch({ type: GET_COLORS_RESPONSE, payload: { allColors } });
       });
     });
   } catch (e) {

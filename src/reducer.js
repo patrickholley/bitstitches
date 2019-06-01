@@ -9,7 +9,7 @@ import {
 import networkStatus from "./lib/constants/networkStatus";
 
 export const initialState = {
-  dmcColors: null,
+  allColors: null,
   getColorsInProgress: networkStatus.CLEAR,
   generatePatternInProgress: networkStatus.CLEAR,
   patternSource: null
@@ -22,7 +22,7 @@ export default function reducer(state, { type, payload }) {
     case GET_COLORS_RESPONSE:
       return {
         ...state,
-        dmcColors: payload.dmcColors,
+        allColors: payload.allColors,
         getColorsInProgress: networkStatus.SUCCESS
       };
     case GET_COLORS_ERROR:

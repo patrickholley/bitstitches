@@ -26,6 +26,10 @@ function BitStitchEditor() {
   const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
   const [pixelSize, setPixelSize] = useState(10);
   const [rowCount, setRowCount] = useState(100);
+  const [currentColors, setCurrentColors] = useState({
+    selected: [],
+    ignored: []
+  });
 
   const getIsFormValid = () => rowCount > 0 && colorCount > 0 && !!image;
 
@@ -35,6 +39,19 @@ function BitStitchEditor() {
     dispatch({ type: GET_COLORS_REQUEST });
     getColors(dispatch);
   }, []);
+
+  useEffect(
+    function() {
+      if (state.allColors) {
+        const allColorKeys = Object.keys(state.allColors);
+        setCurrentColors({
+          selected: allColorKeys.slice(0, colorCount),
+          ignored: allColorKeys.slice(colorCount)
+        });
+      }
+    },
+    [state.allColors]
+  );
 
   function onUpload(e, dataKey) {
     const imageFile = e[dataKey].files[0];
@@ -79,21 +96,6 @@ function BitStitchEditor() {
 
   return (
     <div className="bitstitch-editor">
-      <Modal
-        className="bitstitch-editor__color-modal"
-        isModalOpen={isColorMenuOpen}
-        onClose={() => {
-          setIsColorMenuOpen(false);
-        }}
-      >
-        {/* <ColorMenu
-          colors={colors}
-          setColors={setColors}
-          onClose={() => {
-            setIsColorMenuOpen(false);
-          }}
-        /> */}
-      </Modal>
       <div className="bitstitch-editor__title">
         <span className="bitstitch-editor__title-span">BitStitches</span>
         <svg
@@ -147,6 +149,22 @@ function BitStitchEditor() {
               }}
             />
           </div>
+          <Modal
+            className="bitstitch-editor__color-modal"
+            isModalOpen={isColorMenuOpen}
+            onClose={() => {
+              setIsColorMenuOpen(false);
+            }}
+          >
+            <ColorMenu
+              allColors={state.allColors}
+              currentColors={currentColors}
+              setCurrentColors={setCurrentColors}
+              onClose={() => {
+                setIsColorMenuOpen(false);
+              }}
+            />
+          </Modal>
           <Button
             disabled={!isColorMenuEnabled}
             onClick={() => {
