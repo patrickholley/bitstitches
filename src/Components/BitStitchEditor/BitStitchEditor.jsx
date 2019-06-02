@@ -1,4 +1,5 @@
 import React, { useEffect, useReducer, useState } from "react";
+import classNames from "classnames";
 import TextInput from "../../lib/components/TextInput";
 import Button from "../../lib/components/Button";
 import "./BitStitchEditor.scss";
@@ -19,6 +20,7 @@ function BitStitchEditor() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [isColorMenuEnabled, setIsColorMenuEnabled] = useState(false);
   const [colorCount, setColorCount] = useState(25);
+  const [allColorsCount, setAllColorsCount] = useState(colorCount);
   const [gridColor, setGridColor] = useState([63, 63, 63, 255]);
   const [hasGrid, setHasGrid] = useState(true);
   const [image, setImage] = useState(null);
@@ -48,6 +50,7 @@ function BitStitchEditor() {
           selected: allColorKeys.slice(0, colorCount),
           ignored: allColorKeys.slice(colorCount)
         });
+        setAllColorsCount(allColorKeys.length);
       }
     },
     [state.allColors]
@@ -91,7 +94,7 @@ function BitStitchEditor() {
     const context = canvas.getContext("2d");
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    generatePattern(canvas.toDataURL(), dispatch);
+    generatePattern({ requestImageString: canvas.toDataURL() }, dispatch);
   }
 
   return (
@@ -129,49 +132,53 @@ function BitStitchEditor() {
             className="bitstitch-editor__field"
             label="Color Count"
             onChange={e => {
-              onCountChange(
-                e.target.value,
-                setColorCount,
-                AllDMCFlossColorsCount
-              );
+              onCountChange(e.target.value, setColorCount, allColorsCount);
             }}
             numPad
             value={colorCount}
           />
-          <div className="bitstitch-editor__menu-enable">
-            <span className="bitstitch-editor__enable-label">
-              Choose colors for me:
-            </span>
-            <ToggleSwitch
-              checked={!isColorMenuEnabled}
-              onClick={() => {
-                setIsColorMenuEnabled(!isColorMenuEnabled);
-              }}
-            />
-          </div>
-          <Modal
-            className="bitstitch-editor__color-modal"
-            isModalOpen={isColorMenuOpen}
-            onClose={() => {
-              setIsColorMenuOpen(false);
-            }}
+          <div
+            className={classNames("bitstitch-editor__menu-wrapper", {
+              disabled: isColorMenuEnabled
+            })}
           >
-            <ColorMenu
-              allColors={state.allColors}
-              currentColors={currentColors}
-              setCurrentColors={setCurrentColors}
+            <div className="bitstitch-editor__menu-enable">
+              <ToggleSwitch
+                checked={!isColorMenuEnabled}
+                onClick={() => {
+                  setIsColorMenuEnabled(!isColorMenuEnabled);
+                }}
+              />
+              <span className="bitstitch-editor__enable-label">
+                Use the most common colors in my picture
+              </span>
+            </div>
+            <Modal
+              className="bitstitch-editor__color-modal"
+              isModalOpen={isColorMenuOpen}
               onClose={() => {
                 setIsColorMenuOpen(false);
               }}
+            >
+              <ColorMenu
+                allColors={state.allColors}
+                currentColors={currentColors}
+                setCurrentColors={setCurrentColors}
+                onClose={() => {
+                  setIsColorMenuOpen(false);
+                }}
+              />
+            </Modal>
+            <Button
+              className="bitstitch-editor__color-button"
+              disabled={!isColorMenuEnabled}
+              onClick={() => {
+                setIsColorMenuOpen(!isColorMenuOpen);
+              }}
+              secondary
+              text="Choose Colors Myself..."
             />
-          </Modal>
-          <Button
-            disabled={!isColorMenuEnabled}
-            onClick={() => {
-              setIsColorMenuOpen(!isColorMenuOpen);
-            }}
-            text="Choose Colors"
-          />
+          </div>
           <span className="bitstitch-editor__file-span">{imageLabel}</span>
           <label className="bitstitch-editor__upload-label">
             <input
@@ -208,62 +215,8 @@ function BitStitchEditor() {
 
 export default BitStitchEditor;
 
-/* function drawBitStitchBorder(canvas, context) {
-  canvas.width = canvas.width + 1;
-  canvas.height = canvas.height + 1;
-  context.strokeStyle = "#3f3f3f";
-  context.beginPath();
-  context.moveTo(0, 1080);
-  context.lineTo(1920, 1080);
-  context.lineTo(1920, 0);
-  context.stroke();
-}
+/*
 
-function drawBitStitchImage(canvas, context, buffer) {
-  const bufferData = context.createImageData(
-    canvas.width - 1,
-    canvas.height - 1
-  );
-  bufferData.data.set(buffer);
-  context.putImageData(bufferData, 0, 0);
-  const bufferImageSrc = canvas.toDataURL();
-  const bufferImage = new Image();
-  bufferImage.src = bufferImageSrc;
-  context.drawImage(bufferImage, 0, 0);
-}
-
-function createBitStitch() {
-  const columnCount = Math.floor((rowCount * image.width) / image.height);
-  const imageData = getStateImageData();
-  const canvas = getBitStitchCanvas(columnCount);
-  const context = canvas.getContext("2d");
-  const buffer = manipulatePixels(canvas, imageData, columnCount);
-
-  drawBitStitchBorder(canvas, context);
-  drawBitStitchImage(canvas, context, buffer);
-  setBitStitch(canvas.toDataURL());
-}
-
-function getBitStitchCanvas(columnCount) {
-  const canvas = document.createElement("canvas");
-  canvas.width = columnCount * pixelSize;
-  canvas.height = rowCount * pixelSize;
-
-  return canvas;
-}
-
-function getStateImageData() {
-  const { width, height } = image;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-
-  const context = canvas.getContext("2d");
-  context.drawImage(image, 0, 0);
-
-  return context.getImageData(0, 0, width, height).data;
-}
 
 function manipulatePixels(
   canvas,

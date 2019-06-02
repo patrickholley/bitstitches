@@ -1,9 +1,11 @@
 import { GENERATE_PATTERN_RESPONSE } from "../lib/constants/actions";
 
-export function generatePattern(requestImageString, dispatch) {
+export function generatePattern({ requestImageString }, dispatch) {
   fetch("https://localhost:5001/api/pattern", {
     method: "POST",
-    body: requestImageString
+    body: JSON.stringify({
+      requestImageString
+    })
   }).then(response => {
     response.text().then(function(responsePatternSource) {
       dispatch({
