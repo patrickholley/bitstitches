@@ -17,17 +17,18 @@ const ColorMenu = ({ allColors, currentColors, onClose, setCurrentColors }) => {
       }
     }
 
-    for (let i = 0; i < outCollection.length; i++) {
-      if (index <= outCollection[i]) {
+    let i = 0;
+    const outCollectionLength = outCollection.length;
+    do {
+      if (i >= outCollectionLength - 1) {
+        outCollection.push(index);
+      } else if (index <= outCollection[i]) {
         outCollection.splice(i, 0, index);
         break;
       }
 
-      if (i === outCollection.length - 1) {
-        outCollection.push(index);
-        break;
-      }
-    }
+      i++;
+    } while (i < outCollectionLength);
 
     setCurrentColors({
       [inCollectionName]: inCollection,

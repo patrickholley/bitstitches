@@ -47,8 +47,8 @@ function BitStitchEditor() {
       if (state.allColors) {
         const allColorKeys = Object.keys(state.allColors);
         setCurrentColors({
-          selected: allColorKeys.slice(0, colorCount),
-          ignored: allColorKeys.slice(colorCount)
+          selected: allColorKeys.slice(),
+          ignored: []
         });
         setAllColorsCount(allColorKeys.length);
       }
@@ -94,7 +94,14 @@ function BitStitchEditor() {
     const context = canvas.getContext("2d");
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    generatePattern({ requestImageString: canvas.toDataURL() }, dispatch);
+    generatePattern(
+      {
+        colorCount,
+        imageString: canvas.toDataURL(),
+        selectedColors: currentColors.selected
+      },
+      dispatch
+    );
   }
 
   return (
@@ -106,7 +113,7 @@ function BitStitchEditor() {
           height="12"
           className="bitstitch-editor__title-underline"
           fill="transparent"
-          strokeWidth="4"
+          strokeWidth="3"
           stroke="rgb(96, 149, 139)"
         >
           <path d="M0 7 C 120 0 180 0 240 5" />
@@ -132,7 +139,7 @@ function BitStitchEditor() {
             className="bitstitch-editor__field"
             label="Color Count"
             onChange={e => {
-              onCountChange(e.target.value, setColorCount, allColorsCount);
+              onCountChange(e.target.value, setColorCount, 50);
             }}
             numPad
             value={colorCount}
@@ -214,100 +221,3 @@ function BitStitchEditor() {
 }
 
 export default BitStitchEditor;
-
-/*
-
-
-function manipulatePixels(
-  canvas,
-  imageData,
-  columnCount,
-  autoSelectColors = false
-) {
-  const { width } = canvas;
-  const imageWidth = image.width;
-  const imageHeight = image.height;
-
-  const DMCColorCounts = {};
-  const DMCDistanceCache = autoSelectColors ? AllDMCDistanceCache : {};
-  const DMCIndexes = autoSelectColors
-    ? Object.keys(DMCFlossColors)
-    : manipulatePixels(canvas, imageData, columnCount, true);
-
-  const buffer = new Uint8ClampedArray(
-    rowCount * columnCount * 4 * pixelSize * pixelSize
-  );
-
-  for (let rowNumber = 0; rowNumber < rowCount; rowNumber++) {
-    const imageRowNumber = Math.floor((imageHeight * rowNumber) / rowCount);
-    const y = rowNumber * pixelSize;
-
-    for (let columnNumber = 0; columnNumber < columnCount; columnNumber++) {
-      const imageColumnNumber = Math.floor(
-        (imageWidth * columnNumber) / columnCount
-      );
-      const x = columnNumber * pixelSize;
-      const pixelIndex =
-        (imageRowNumber * imageWidth + imageColumnNumber) * 4;
-      const pixelColor = imageData.slice(pixelIndex, pixelIndex + 4);
-      const pixelColorString = pixelColor.join(",");
-      const DMCColor =
-        DMCDistanceCache[pixelColorString] ||
-        roundToDMCColor(pixelColor, DMCIndexes);
-      const { index } = DMCColor;
-
-      if (!DMCDistanceCache[pixelColorString]) {
-        DMCDistanceCache[pixelColorString] = DMCColor;
-      }
-
-      if (!autoSelectColors) {
-        setBufferIndex(buffer, DMCColor, width, x, y);
-      } else {
-        if (!DMCColorCounts[index]) DMCColorCounts[index] = 0;
-        DMCColorCounts[index]++;
-      }
-    }
-  }
-
-  return autoSelectColors
-    ? Object.keys(DMCColorCounts)
-        .sort((a, b) => DMCColorCounts[b] - DMCColorCounts[a])
-        .slice(0, colorCount)
-    : buffer;
-}
-
-function roundToDMCColor(color, DMCIndexes) {
-  let closestColor = {};
-
-  for (let index of DMCIndexes) {
-    const { red, green, blue } = DMCFlossColors[index];
-    const distance = Math.sqrt(
-      Math.pow(color[0] - red, 2) +
-        Math.pow(color[1] - green, 2) +
-        Math.pow(color[2] - blue, 2)
-    );
-
-    if (!closestColor.distance || distance < closestColor.distance) {
-      closestColor = { distance, index };
-      if (distance === 0) break;
-    }
-  }
-
-  return DMCFlossColors[closestColor.index];
-}
-
-function setBufferIndex(buffer, DMCColor, width, x, y) {
-  for (let pixelRow = 0; pixelRow < pixelSize; pixelRow++) {
-    for (let pixelColumn = 0; pixelColumn < pixelSize; pixelColumn++) {
-      const bufferIndex = (width * (y + pixelRow) + x + pixelColumn) * 4;
-      const colorSource =
-        pixelRow === 0 || pixelColumn === 0
-          ? gridColor
-          : [DMCColor.red, DMCColor.green, DMCColor.blue, 255];
-
-      for (let colorParam = 0; colorParam < 4; colorParam++) {
-        buffer[bufferIndex + colorParam] = colorSource[colorParam];
-      }
-    }
-  }
-} */

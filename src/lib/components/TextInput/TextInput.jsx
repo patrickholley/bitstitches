@@ -44,6 +44,21 @@ class TextInput extends Component {
           onBlur={() => {
             if (isPristine) this.setState({ isPristine: false });
           }}
+          onKeyDown={e => {
+            if (numPad) {
+              if (e.key === "ArrowUp") {
+                onChange({
+                  ...e,
+                  target: { ...e.target, value: +e.target.value + 1 }
+                });
+              } else if (e.key === "ArrowDown") {
+                onChange({
+                  ...e,
+                  target: { ...e.target, value: +e.target.value - 1 }
+                });
+              }
+            }
+          }}
           pattern={pattern}
           type={numPad ? "tel" : "text"}
           value={value}
