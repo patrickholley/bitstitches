@@ -47,8 +47,8 @@ function BitStitchEditor() {
       if (state.allColors) {
         const allColorKeys = Object.keys(state.allColors);
         setCurrentColors({
-          selected: allColorKeys.slice(),
-          ignored: []
+          selected: allColorKeys.slice(0, colorCount),
+          ignored: allColorKeys.slice(colorCount, allColorKeys.length)
         });
         setAllColorsCount(allColorKeys.length);
       }
@@ -98,7 +98,9 @@ function BitStitchEditor() {
       {
         colorCount,
         imageString: canvas.toDataURL(),
-        selectedColors: currentColors.selected
+        selectedColors: isColorMenuEnabled
+          ? currentColors.selected
+          : Object.keys(state.allColors)
       },
       dispatch
     );
