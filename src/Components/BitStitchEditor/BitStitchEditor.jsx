@@ -10,7 +10,8 @@ import ColorMenu from "./ColorMenu";
 import reducer, { initialState } from "../../reducer";
 import {
   GET_COLORS_REQUEST,
-  GENERATE_PATTERN_REQUEST
+  GENERATE_PATTERN_REQUEST,
+  CLEAR_GENERATE_PATTERN
 } from "../../lib/constants/actions";
 import { getColors } from "../../api/colors";
 import { generatePattern } from "../../api/patterns";
@@ -54,6 +55,30 @@ function BitStitchEditor() {
       }
     },
     [state.allColors]
+  );
+
+  useEffect(
+    function() {
+      if (state.generatePatternStatus === networkStatus.SUCCESS) {
+        const { allColors, selectedColors } = state;
+        const selected = [];
+        const ignored = [];
+
+        Object.keys(allColors).forEach(id => {
+          for (let i = 0; i < selectedColors.length; i++) {
+            if (selectedColors[i].ID === id) {
+              selected.push(id);
+              break;
+            }
+          }
+
+          ignored.push(id);
+        });
+
+        setCurrentColors({ selected, ignored });
+      }
+    },
+    [state.generatePatternStatus]
   );
 
   function onUpload(e, dataKey) {
@@ -205,10 +230,10 @@ function BitStitchEditor() {
             text="Create BitStitch"
           />
           <div className="bitstitch-editor__preview-wrapper">
-            {state.generatePatternInProgress === networkStatus.IN_PROGRESS && (
+            {state.generatePatternStatus === networkStatus.IN_PROGRESS && (
               <Loading />
             )}
-            {state.generatePatternInProgress === networkStatus.SUCCESS && (
+            {state.generatePatternStatus === networkStatus.SUCCESS && (
               <img
                 alt="uploaded cross-stitch pattern"
                 className="bitstitch-editor__preview"

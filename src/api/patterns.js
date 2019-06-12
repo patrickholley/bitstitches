@@ -5,11 +5,12 @@ export function generatePattern(bodyObject, dispatch) {
     method: "POST",
     body: JSON.stringify(bodyObject)
   }).then(response => {
-    response.text().then(function(responsePatternSource) {
+    response.json().then(function(response) {
       dispatch({
         type: GENERATE_PATTERN_RESPONSE,
         payload: {
-          patternSource: `data:image/png;base64,${responsePatternSource}`
+          patternSource: `data:image/png;base64,${response.image}`,
+          selectedColors: response.usedColors
         }
       });
     });
