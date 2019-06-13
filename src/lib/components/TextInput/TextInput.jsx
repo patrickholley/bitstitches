@@ -20,6 +20,7 @@ class TextInput extends Component {
       onChange,
       numPad,
       pattern,
+      tooltip,
       validate,
       value
     } = this.props;
@@ -63,7 +64,8 @@ class TextInput extends Component {
           type={numPad ? "tel" : "text"}
           value={value}
         />
-        <span className="text-input__error">{errorMessage}</span>
+        {hasError && <span className="text-input__error">{errorMessage}</span>}
+        <div className="text-input__tooltip-icon">?</div>
       </div>
     );
   }

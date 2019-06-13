@@ -7,6 +7,17 @@
   margin-top: 25px;
 }
 
+.color-menu__list-error {
+  color: var(--error);
+  font-style: italic;
+  padding-top: 10px;
+}
+
+.color-menu__list-button {
+  margin-top: 8px;
+  width: 100%;
+}
+
 .color-menu__list-circle {
   border: 1px solid black;
   border-radius: 50%;
@@ -49,5 +60,6 @@
 .color-menu__prompt {
   font-size: 24px;
   font-weight: bold;
+  margin: 0;
   text-align: center;
 }

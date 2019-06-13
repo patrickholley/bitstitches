@@ -3,7 +3,9 @@ import Button from "../../../lib/components/Button";
 import "./ColorMenu.scss";
 
 const ColorMenu = ({ allColors, currentColors, onClose, setCurrentColors }) => {
-  function handleClick(index, inCollectionName) {
+  const isSelectedColorsEmpty = currentColors.selected.length === 0;
+
+  function handleColorClick(index, inCollectionName) {
     const outCollectionName =
       inCollectionName === "selected" ? "ignored" : "selected";
 
@@ -36,30 +38,57 @@ const ColorMenu = ({ allColors, currentColors, onClose, setCurrentColors }) => {
     });
   }
 
+  function handleClear(inCollectionName) {
+    const outCollectionName =
+      inCollectionName === "selected" ? "ignored" : "selected";
+
+    setCurrentColors({
+      [inCollectionName]: [],
+      [outCollectionName]: Object.keys(allColors)
+    });
+  }
+
+  const generateColorItems = inCollectionName =>
+    currentColors[inCollectionName].map(index => {
+      const { RGB } = allColors[index];
+
+      return (
+        <li
+          key={index}
+          className="color-menu__list-item"
+          onClick={() => {
+            handleColorClick(index, inCollectionName);
+          }}
+        >
+          <div
+            className="color-menu__list-circle"
+            style={{ backgroundColor: `rgb(${RGB})` }}
+          />
+          <span>{index}</span>
+        </li>
+      );
+    });
+
   const generateColorList = inCollectionName => (
     <div className="color-menu__list-wrapper">
       {inCollectionName}
       <ul className="color-menu__list">
-        {currentColors[inCollectionName].map(index => {
-          const { RGB } = allColors[index];
-
-          return (
-            <li
-              key={index}
-              className="color-menu__list-item"
-              onClick={() => {
-                handleClick(index, inCollectionName);
-              }}
-            >
-              <div
-                className="color-menu__list-circle"
-                style={{ backgroundColor: `rgb(${RGB})` }}
-              />
-              <span>{index}</span>
-            </li>
-          );
-        })}
+        {isSelectedColorsEmpty && inCollectionName === "selected" ? (
+          <div className="color-menu__list-error">
+            at least one color must be selected
+          </div>
+        ) : (
+          generateColorItems(inCollectionName)
+        )}
       </ul>
+      <Button
+        className="color-menu__list-button"
+        onClick={() => {
+          handleClear(inCollectionName);
+        }}
+        secondary
+        text="Clear"
+      />
     </div>
   );
 
@@ -74,6 +103,7 @@ const ColorMenu = ({ allColors, currentColors, onClose, setCurrentColors }) => {
       </div>
       <Button
         className="color-menu__close"
+        disabled={isSelectedColorsEmpty}
         onClick={onClose}
         text="Close Menu"
       />

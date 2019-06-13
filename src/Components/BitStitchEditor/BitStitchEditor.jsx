@@ -184,14 +184,15 @@ function BitStitchEditor() {
                 }}
               />
               <span className="bitstitch-editor__enable-label">
-                Use the most common colors in my picture
+                Use the most common colors in my picture (this may take longer)
               </span>
             </div>
             <Modal
               className="bitstitch-editor__color-modal"
               isModalOpen={isColorMenuOpen}
               onClose={() => {
-                setIsColorMenuOpen(false);
+                if (currentColors.selected.length > 0)
+                  setIsColorMenuOpen(false);
               }}
             >
               <ColorMenu
@@ -199,7 +200,8 @@ function BitStitchEditor() {
                 currentColors={currentColors}
                 setCurrentColors={setCurrentColors}
                 onClose={() => {
-                  setIsColorMenuOpen(false);
+                  if (currentColors.selected.length > 0)
+                    setIsColorMenuOpen(false);
                 }}
               />
             </Modal>

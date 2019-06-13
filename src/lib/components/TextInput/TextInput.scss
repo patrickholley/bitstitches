@@ -44,6 +44,16 @@
   transition: opacity 0.25s;
 }
 
+.text-input__tooltip-icon {
+  @include user-select(none);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  position: absolute;
+  right: 3px;
+  top: -30px;
+}
+
 .text-input__wrapper {
   box-shadow: 0 0 3px 1px var(--green);
   height: 40px;
