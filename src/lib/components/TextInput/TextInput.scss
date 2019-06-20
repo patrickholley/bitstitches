@@ -44,6 +44,17 @@
   transition: opacity 0.25s;
 }
 
+.text-input__tooltip-content {
+  background-color: var(--burgundy_dim);
+  border-radius: 5px;
+  color: white;
+  line-height: 16px;
+  padding: 5px;
+  position: absolute;
+  visibility: hidden;
+  z-index: 1;
+}
+
 .text-input__tooltip-icon {
   @include user-select(none);
   cursor: pointer;
@@ -52,6 +63,13 @@
   position: absolute;
   right: 3px;
   top: -30px;
+}
+
+.text-input__tooltip-content:hover,
+.text-input__tooltip-icon:hover {
+  .text-input__tooltip-content {
+    visibility: visible;
+  }
 }
 
 .text-input__wrapper {

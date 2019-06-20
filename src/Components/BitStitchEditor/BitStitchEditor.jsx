@@ -27,6 +27,7 @@ function BitStitchEditor() {
   const [image, setImage] = useState(null);
   const [imageLabel, setImageLabel] = useState("Please upload an image");
   const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
+  const [maxRowCount, setMaxRowCount] = useState(250);
   const [pixelSize, setPixelSize] = useState(10);
   const [rowCount, setRowCount] = useState(100);
   const [currentColors, setCurrentColors] = useState({
@@ -157,9 +158,11 @@ function BitStitchEditor() {
             className="bitstitch-editor__field"
             label="Row Count"
             onChange={e => {
-              onCountChange(e.target.value, setRowCount, 250);
+              onCountChange(e.target.value, setRowCount, maxRowCount);
             }}
             numPad
+            tooltip={`Maximum ${maxRowCount} (based on image)`}
+            tooltipClassName="bitstitch-editor__row-tooltip"
             value={rowCount}
           />
           <TextInput
