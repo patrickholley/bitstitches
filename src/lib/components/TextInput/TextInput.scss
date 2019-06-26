@@ -44,38 +44,10 @@
   transition: opacity 0.25s;
 }
 
-.text-input__tooltip-content {
-  background-color: var(--burgundy_dim);
-  border-radius: 5px;
-  color: white;
-  line-height: 16px;
-  padding: 5px;
-  position: absolute;
-  visibility: hidden;
-  z-index: 1;
-}
-
-.text-input__tooltip-icon {
-  @include user-select(none);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: bold;
-  position: absolute;
-  right: 3px;
-  top: -30px;
-}
-
-.text-input__tooltip-content:hover,
-.text-input__tooltip-icon:hover {
-  .text-input__tooltip-content {
-    visibility: visible;
-  }
-}
-
 .text-input__wrapper {
   box-shadow: 0 0 3px 1px var(--green);
   height: 40px;
-  margin: 10px 0;
+  margin: 10px 0 20px;
   position: relative;
   line-height: 40px;
 

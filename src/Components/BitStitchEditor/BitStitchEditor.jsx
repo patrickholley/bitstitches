@@ -34,6 +34,8 @@ function BitStitchEditor() {
     selected: [],
     ignored: []
   });
+  const maxColorCount = 50;
+  const numbersOnlyRegex = /^[0-9]*$/;
 
   const getIsFormValid = () => rowCount > 0 && colorCount > 0 && !!image;
 
@@ -82,6 +84,13 @@ function BitStitchEditor() {
     [state.generatePatternStatus]
   );
 
+  useEffect(
+    function() {
+      if (rowCount > maxRowCount) setRowCount(maxRowCount);
+    },
+    [maxRowCount]
+  );
+
   function onUpload(e, dataKey) {
     const imageFile = e[dataKey].files[0];
     const validExtensions = ["bmp", "gif", "jpg", "jpeg", "png"];
@@ -95,6 +104,9 @@ function BitStitchEditor() {
         image.onload = () => {
           setImage(image);
           setImageLabel(imageFile.name);
+          let rowToColumnRatio = image.height / image.width;
+          if (rowToColumnRatio > 1) rowToColumnRatio = 1;
+          setMaxRowCount(Math.floor(rowToColumnRatio * 250));
         };
         image.src = file.target.result;
       };
@@ -104,10 +116,11 @@ function BitStitchEditor() {
   }
 
   function onCountChange(value, setCount, countLimit) {
-    value = parseInt(value, 10);
-    if (Number.isNaN(value) || value < 0) value = 0;
-    else if (value > countLimit) value = countLimit;
-    setCount(value);
+    if (numbersOnlyRegex.test(value)) {
+      if (value !== "" && value < 1) value = 1;
+      else if (value > countLimit) value = countLimit;
+      setCount(value);
+    }
   }
 
   function onSubmit() {
@@ -161,17 +174,19 @@ function BitStitchEditor() {
               onCountChange(e.target.value, setRowCount, maxRowCount);
             }}
             numPad
-            tooltip={`Maximum ${maxRowCount} (based on image)`}
-            tooltipClassName="bitstitch-editor__row-tooltip"
+            tooltip={`Maximum ${maxRowCount} rows (based on image)`}
+            tooltipClassName="bitstitch-editor__tooltip-row"
             value={rowCount}
           />
           <TextInput
             className="bitstitch-editor__field"
             label="Color Count"
             onChange={e => {
-              onCountChange(e.target.value, setColorCount, 50);
+              onCountChange(e.target.value, setColorCount, maxColorCount);
             }}
             numPad
+            tooltip={`Maximum ${maxColorCount} colors`}
+            tooltipClassName="bitstitch-editor__tooltip-color"
             value={colorCount}
           />
           <div

@@ -63,8 +63,14 @@
   width: 100%;
 }
 
-.bitstitch-editor__row-tooltip {
+.bitstitch-editor__tooltip-row {
   top: -30px;
+  right: -5px;
+  width: 110px;
+}
+
+.bitstitch-editor__tooltip-color {
+  top: -15px;
   right: -5px;
   width: 110px;
 }

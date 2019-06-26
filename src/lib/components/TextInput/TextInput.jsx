@@ -19,9 +19,6 @@ class TextInput extends Component {
       label,
       onChange,
       numPad,
-      pattern,
-      tooltip,
-      tooltipClassName,
       validate,
       value
     } = this.props;
@@ -60,23 +57,10 @@ class TextInput extends Component {
               }
             }
           }}
-          pattern={pattern}
           type={numPad ? "tel" : "text"}
           value={value}
         />
         {hasError && <span className="text-input__error">{errorMessage}</span>}
-        {tooltip && (
-          <div className="text-input__tooltip-icon">
-            <span>?</span>
-            <div
-              className={classNames("text-input__tooltip-content", {
-                [tooltipClassName]: !!tooltipClassName
-              })}
-            >
-              {tooltip}
-            </div>
-          </div>
-        )}
       </div>
     );
   }
